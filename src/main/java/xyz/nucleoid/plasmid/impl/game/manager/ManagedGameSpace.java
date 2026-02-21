@@ -17,11 +17,14 @@ import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
 import xyz.nucleoid.plasmid.api.game.player.JoinOfferResult;
+import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.player.LocalJoinAcceptor;
 import xyz.nucleoid.plasmid.impl.player.LocalJoinOffer;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.plasmid.api.event.GameEvents;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -33,6 +36,8 @@ public final class ManagedGameSpace implements GameSpace {
 
     private final ManagedGameSpacePlayers players;
     private final ManagedGameSpaceLevels worlds;
+
+    private final ArrayList<PlayerRef> whitelistedPlayers = new ArrayList<>();
 
     private final GameLifecycle lifecycle = new GameLifecycle();
 
@@ -143,6 +148,18 @@ public final class ManagedGameSpace implements GameSpace {
     public ManagedGameSpacePlayers getPlayers() {
         return this.players;
     }
+
+    @Override
+    public ArrayList<PlayerRef> getWhitelist() { return this.whitelistedPlayers; }
+
+    @Override
+    public boolean isPlayerInWhitelist(PlayerRef playerRef) { return this.whitelistedPlayers.contains(playerRef); }
+
+    @Override
+    public void addPlayerToWhitelist(PlayerRef playerRef) { this.whitelistedPlayers.add(playerRef); }
+
+    @Override
+    public void removePlayerFromWhitelist(PlayerRef playerRef) { this.whitelistedPlayers.remove(playerRef); }
 
     @Override
     public ManagedGameSpaceLevels getLevels() {

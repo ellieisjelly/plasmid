@@ -8,7 +8,9 @@ import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.api.game.level.GameSpaceLevels;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -79,6 +81,31 @@ public interface GameSpace extends GameAttachmentHolder {
      * @return a {@link PlayerSet} that contains all {@link ServerPlayer}s in this {@link GameSpace}
      */
     GameSpacePlayers getPlayers();
+
+    /**
+     * Returns all {@link ServerPlayer}s in this {@link GameSpace}'s whitelist.
+     * @return a {@link ArrayList<PlayerRef>} that contains all {@link ServerPlayer}s in the {@link GameSpace} whitelist
+     */
+    ArrayList<PlayerRef> getWhitelist();
+
+    /**
+     * Returns if the {@link PlayerRef} is in this {@link GameSpace}'s whitelist.
+     * @param playerRef The player to check
+     * @return true if the player is in the whitelist, false otherwise
+     */
+    boolean isPlayerInWhitelist(PlayerRef playerRef);
+
+    /**
+     * Adds a {@link PlayerRef} to the whitelist
+     * @param playerRef The player to add to the whitelist
+     */
+    void addPlayerToWhitelist(PlayerRef playerRef);
+
+    /**
+     * Removes the {@link PlayerRef} from the whitelist
+     * @param playerRef The player to remove from the whitelist
+     */
+    void removePlayerFromWhitelist(PlayerRef playerRef);
 
     /**
      * Returns the manager for all attached {@link ServerLevel} instances to this {@link GameSpace}.

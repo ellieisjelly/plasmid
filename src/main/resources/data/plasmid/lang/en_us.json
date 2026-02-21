@@ -35,6 +35,7 @@
   "text.plasmid.game.join.error": "An unexpected exception occurred while joining game!",
   "text.plasmid.game.join.no_game_open": "No games are open!",
   "text.plasmid.game.join.party.error": "%s players were unable to join this game!",
+  "text.plasmid.game.join.party.error.private": "Not all players are in this game's whitelist!",
   "text.plasmid.game.leave": "%s has left the game lobby!",
   "text.plasmid.game.leave.spectate": "%s is no longer spectating the game lobby!",
   "text.plasmid.game.kick": "%s was kicked from the game!",

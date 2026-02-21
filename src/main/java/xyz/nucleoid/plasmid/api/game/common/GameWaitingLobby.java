@@ -17,6 +17,7 @@ import xyz.nucleoid.plasmid.api.game.player.JoinOfferResult;
 import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.api.game.common.widget.SidebarWidget;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.game.common.ui.WaitingLobbyUi;
 import xyz.nucleoid.plasmid.impl.game.common.ui.element.LeaveGameWaitingLobbyUiElement;
 import xyz.nucleoid.plasmid.impl.game.common.ui.element.ReadyGameWaitingLobbyUiElement;
@@ -336,7 +337,6 @@ public final class GameWaitingLobby {
         if (this.startRequested) {
             return START_REQUESTED_COUNTDOWN;
         }
-
         if (this.gameSpace.getPlayers().participants().size() >= this.playerConfig.minPlayers()) {
             double playersNeededToStart = Math.ceil((double) this.gameSpace.getPlayers().participants().size() / 2);
             if (playersNeededToStart <= this.playerVotes.size()) {
@@ -435,6 +435,17 @@ public final class GameWaitingLobby {
         var server = this.gameSpace.getServer();
         if (count >= server.getPlayerCount()) {
             return true;
+        }
+
+        // if the game is private and all players are in the whitelist
+        if (!this.gameSpace.getWhitelist().isEmpty()) {
+            ArrayList<PlayerRef> remainingPlayers = new ArrayList<>(this.gameSpace.getWhitelist());
+            for (ServerPlayer player : this.gameSpace.getPlayers()) {
+                remainingPlayers.remove(PlayerRef.of(player));
+            }
+            if (remainingPlayers.isEmpty()) {
+                return true;
+            }
         }
 
         // if there are no players outside of a game on the server
