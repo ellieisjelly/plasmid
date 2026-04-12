@@ -1,5 +1,6 @@
 package xyz.nucleoid.plasmid.test;
 
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import eu.pb4.sgui.api.elements.GuiElement;
@@ -214,7 +215,7 @@ public class WaitingLobbyUiLayoutTests {
 
         for (int i = 0; i < pattern.length(); i++) {
             char c = pattern.charAt(i);
-            array[i] = c == ' ' ? GuiElement.EMPTY : map.get(c);
+            array[i] = c == ' ' ? SimpleGuiElement.EMPTY : map.get(c);
         }
 
         return array;

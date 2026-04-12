@@ -189,7 +189,7 @@ public class BlockTraversalTests {
 
         traversal.accept(origin, (pos, fromPos, depth) -> {
             if (depth >= 1) {
-                actual.add(pos.toImmutable());
+                actual.add(pos.immutable());
                 return BlockTraversal.Result.TERMINATE;
             }
 

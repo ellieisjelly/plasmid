@@ -130,7 +130,7 @@ public class OldCombatTests {
 
         assertEquals(EquipmentSlotGroup.MAINHAND, attackSpeed.slot(), "Incorrect attack speed attribute modifier slot for " + item);
         assertEquals(AttributeModifier.Operation.ADD_VALUE, attackSpeed.modifier().operation(), "Incorrect attack speed attribute modifier operation for " + item);
-        assertEquals(10000.0F, attackSpeed.modifier().value(), "Incorrect attack speed attribute modifier value for " + item);
+        assertEquals(10000.0F, attackSpeed.modifier().amount(), "Incorrect attack speed attribute modifier value for " + item);
 
         // Attack damage
         var attackDamage = getAttributeModifierEntry(component, Attributes.ATTACK_DAMAGE);
@@ -138,7 +138,7 @@ public class OldCombatTests {
 
         assertEquals(EquipmentSlotGroup.MAINHAND, attackDamage.slot(), "Incorrect attack damage attribute modifier slot for " + item);
         assertEquals(AttributeModifier.Operation.ADD_VALUE, attackDamage.modifier().operation(), "Incorrect attack damage attribute modifier operation for " + item);
-        assertEquals(expectedAttackDamage, attackDamage.modifier().value(), "Incorrect attack damage attribute modifier value for " + item);
+        assertEquals(expectedAttackDamage, attackDamage.modifier().amount(), "Incorrect attack damage attribute modifier value for " + item);
     }
 
     private static ItemAttributeModifiers.Entry getAttributeModifierEntry(ItemAttributeModifiers component, Holder<Attribute> attribute) {
