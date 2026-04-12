@@ -1,6 +1,9 @@
 package xyz.nucleoid.plasmid.test;
 
 import eu.pb4.sgui.api.elements.SimpleGuiElement;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import eu.pb4.sgui.api.elements.GuiElement;
@@ -26,6 +29,9 @@ public class WaitingLobbyUiLayoutTests {
     public static void beforeAll() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
+        for (var item : BuiltInRegistries.ITEM.asHolderIdMap()) {
+            ((Holder.Reference) item).bindComponents(DataComponentMap.EMPTY);
+        }
     }
 
     @Test
