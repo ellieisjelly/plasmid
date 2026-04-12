@@ -217,8 +217,9 @@ public final class GameWaitingLobby {
 
                     if (gui instanceof WaitingLobbyUi) {
                         player.onHandledScreenClosed();
-                        PolymerUtils.reloadInventory(player);
                     }
+
+                    PolymerUtils.reloadInventory(player);
                 }
             }
         }
