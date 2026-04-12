@@ -1,197 +1,201 @@
 package xyz.nucleoid.plasmid.api.game;
 
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
 
 /**
- * Utility class containing various functions that supply {@link Text} instances.
+ * Utility class containing various functions that supply {@link Component} instances.
  * <p>
  * This provides a common path for Plasmid and game implementations to share common messages.
  */
 public final class GameTexts {
-    public static MutableText commandLink(String text, String command) {
-        return Text.literal(text).setStyle(commandLinkStyle(command));
+    public static MutableComponent commandLink(String text, String command) {
+        return Component.literal(text).setStyle(commandLinkStyle(command));
     }
 
-    public static MutableText commandLink(Text text, String command) {
+    public static MutableComponent commandLink(Component text, String command) {
         return text.copy().setStyle(commandLinkStyle(command));
     }
 
     public static Style commandLinkStyle(String command) {
-        return commandLinkStyle(command, Text.literal(command));
+        return commandLinkStyle(command, Component.literal(command));
     }
 
-    public static Style commandLinkStyle(String command, Text hoverText) {
+    public static Style commandLinkStyle(String command, Component hoverText) {
         return Style.EMPTY
                 .withClickEvent(new ClickEvent.RunCommand(command))
                 .withHoverEvent(new HoverEvent.ShowText(hoverText))
-                .withFormatting(Formatting.BLUE, Formatting.UNDERLINE);
+                .applyFormats(ChatFormatting.BLUE, ChatFormatting.UNDERLINE);
     }
 
     public static final class Broadcast {
-        public static MutableText gameOpened(ServerCommandSource source, GameSpace gameSpace) {
-            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().formatted(Formatting.GRAY);
+        public static MutableComponent gameOpened(CommandSourceStack source, GameSpace gameSpace) {
+            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
-            return Text.translatable("text.plasmid.game.open.opened", source.getDisplayName(), gameName)
+            return Component.translatable("text.plasmid.game.open.opened", source.getDisplayName(), gameName)
                     .append(GameTexts.Join.link(gameSpace));
         }
 
-        public static MutableText gameOpenedTesting(ServerCommandSource source, GameSpace gameSpace) {
-            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().formatted(Formatting.GRAY);
+        public static MutableComponent gameOpenedTesting(CommandSourceStack source, GameSpace gameSpace) {
+            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
-            return Text.translatable("text.plasmid.game.open.opened.testing", source.getDisplayName(), gameName)
+            return Component.translatable("text.plasmid.game.open.opened.testing", source.getDisplayName(), gameName)
                     .append(GameTexts.Join.link(gameSpace));
         }
 
-        public static MutableText propose(ServerCommandSource source, GameSpace gameSpace) {
-            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().formatted(Formatting.GRAY);
+        public static MutableComponent propose(CommandSourceStack source, GameSpace gameSpace) {
+            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
-            return Text.translatable("text.plasmid.game.propose", source.getDisplayName(), gameName)
+            return Component.translatable("text.plasmid.game.propose", source.getDisplayName(), gameName)
                     .append(GameTexts.Join.link(gameSpace));
         }
 
-        public static MutableText gameOpenError() {
-            return Text.translatable("text.plasmid.game.open.error");
+        public static MutableComponent gameOpenError() {
+            return Component.translatable("text.plasmid.game.open.error");
         }
     }
 
     public static final class Command {
-        public static MutableText located(ServerPlayerEntity player, GameSpace gameSpace) {
-            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().formatted(Formatting.GRAY);
+        public static MutableComponent located(ServerPlayer player, GameSpace gameSpace) {
+            var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
-            return Text.translatable("text.plasmid.game.locate.located", player.getDisplayName(), gameName)
+            return Component.translatable("text.plasmid.game.locate.located", player.getDisplayName(), gameName)
                     .append(GameTexts.Join.link(gameSpace));
         }
 
-        public static MutableText gameList() {
-            return Text.translatable("text.plasmid.game.list");
+        public static MutableComponent gameList() {
+            return Component.translatable("text.plasmid.game.list");
         }
 
-        public static MutableText listEntry(Text entry) {
-            return Text.translatable("text.plasmid.entry", entry);
+        public static MutableComponent listEntry(Component entry) {
+            return Component.translatable("text.plasmid.entry", entry);
         }
     }
 
     public static final class Start {
-        public static MutableText genericError() {
-            return Text.translatable("text.plasmid.game.start_result.generic_error");
+        public static MutableComponent genericError() {
+            return Component.translatable("text.plasmid.game.start_result.generic_error");
         }
 
-        public static MutableText alreadyStarted() {
-            return Text.translatable("text.plasmid.game.start_result.already_started");
+        public static MutableComponent alreadyStarted() {
+            return Component.translatable("text.plasmid.game.start_result.already_started");
         }
 
-        public static MutableText notEnoughPlayers() {
-            return Text.translatable("text.plasmid.game.start_result.not_enough_players");
+        public static MutableComponent notEnoughPlayers() {
+            return Component.translatable("text.plasmid.game.start_result.not_enough_players");
         }
 
-        public static MutableText startedBy(ServerCommandSource source) {
-            return Text.translatable("text.plasmid.game.started.player", source.getDisplayName());
+        public static MutableComponent startedBy(CommandSourceStack source) {
+            return Component.translatable("text.plasmid.game.started.player", source.getDisplayName());
         }
     }
 
     public static final class Stop {
-        public static MutableText stoppedBy(ServerCommandSource source) {
-            return Text.translatable("text.plasmid.game.stopped.player", source.getDisplayName());
+        public static MutableComponent stoppedBy(CommandSourceStack source) {
+            return Component.translatable("text.plasmid.game.stopped.player", source.getDisplayName());
         }
 
-        public static MutableText confirmStop() {
-            return Text.translatable("text.plasmid.game.stop.confirm");
+        public static MutableComponent confirmStop() {
+            return Component.translatable("text.plasmid.game.stop.confirm");
         }
 
-        public static MutableText genericError() {
-            return Text.translatable("text.plasmid.game.stopped.error");
+        public static MutableComponent genericError() {
+            return Component.translatable("text.plasmid.game.stopped.error");
         }
     }
 
     public static final class Join {
-        public static MutableText success(ServerPlayerEntity player) {
-            return Text.translatable("text.plasmid.game.join", player.getDisplayName());
+        public static MutableComponent success(ServerPlayer player) {
+            return Component.translatable("text.plasmid.game.join", player.getDisplayName());
         }
 
-        public static MutableText successSpectator(ServerPlayerEntity player) {
-            return Text.translatable("text.plasmid.game.join.spectate", player.getDisplayName());
+        public static MutableComponent successSpectator(ServerPlayer player) {
+            return Component.translatable("text.plasmid.game.join.spectate", player.getDisplayName());
         }
 
-        public static MutableText link(GameSpace gameSpace) {
-            var hover = Text.translatable("text.plasmid.join_link_hover", GameConfig.name(gameSpace.getMetadata().sourceConfig()));
+        public static MutableComponent link(GameSpace gameSpace) {
+            var hover = Component.translatable("text.plasmid.join_link_hover", GameConfig.name(gameSpace.getMetadata().sourceConfig()));
 
-            return Text.translatable("text.plasmid.game.open.join")
+            return Component.translatable("text.plasmid.game.open.join")
                     .setStyle(commandLinkStyle("/game join " + gameSpace.getMetadata().userId(), hover));
         }
 
-        public static MutableText partyJoinError(int errorCount) {
-            return Text.translatable("text.plasmid.game.join.party.error", errorCount);
+        public static MutableComponent partyJoinError(int errorCount) {
+            return Component.translatable("text.plasmid.game.join.party.error", errorCount);
         }
 
-        public static MutableText genericError() {
-            return Text.translatable("text.plasmid.join_result.generic_error");
+        public static MutableComponent genericError() {
+            return Component.translatable("text.plasmid.join_result.generic_error");
         }
 
-        public static MutableText unexpectedError() {
-            return Text.translatable("text.plasmid.join_result.error");
+        public static MutableComponent unexpectedError() {
+            return Component.translatable("text.plasmid.join_result.error");
         }
 
-        public static MutableText gameClosed() {
-            return Text.translatable("text.plasmid.join_result.game_closed");
+        public static MutableComponent gameClosed() {
+            return Component.translatable("text.plasmid.join_result.game_closed");
         }
 
-        public static MutableText gameFull() {
-            return Text.translatable("text.plasmid.join_result.game_full");
+        public static MutableComponent gameFull() {
+            return Component.translatable("text.plasmid.join_result.game_full");
         }
 
-        public static MutableText alreadyJoined() {
-            return Text.translatable("text.plasmid.join_result.already_joined");
+        public static MutableComponent alreadyJoined() {
+            return Component.translatable("text.plasmid.join_result.already_joined");
         }
 
-        public static MutableText inOtherGame() {
-            return Text.translatable(
+        public static MutableComponent inOtherGame() {
+            return Component.translatable(
                     "text.plasmid.join_result.in_other_game",
                     commandLink(
-                            Text.translatable("text.plasmid.join_result.in_other_game.leave_this_game"),
+                            Component.translatable("text.plasmid.join_result.in_other_game.leave_this_game"),
                             "/game leave"
                     )
             );
         }
 
-        public static MutableText notAllowed() {
-            return Text.translatable("text.plasmid.join_result.not_allowed");
+        public static MutableComponent notAllowed() {
+            return Component.translatable("text.plasmid.join_result.not_allowed");
         }
 
-        public static MutableText spectatorsOnly() {
-            return Text.translatable("text.plasmid.join_result.spectators_only");
+        public static MutableComponent spectatorsOnly() {
+            return Component.translatable("text.plasmid.join_result.spectators_only");
         }
 
-        public static MutableText participantsOnly() {
-            return Text.translatable("text.plasmid.join_result.participants_only");
+        public static MutableComponent participantsOnly() {
+            return Component.translatable("text.plasmid.join_result.participants_only");
         }
     }
 
     public static final class Leave {
-        public static MutableText participant(ServerPlayerEntity player) {
-            return Text.translatable("text.plasmid.game.leave", player.getDisplayName());
+        public static MutableComponent participant(ServerPlayer player) {
+            return Component.translatable("text.plasmid.game.leave", player.getDisplayName());
         }
 
-        public static MutableText spectator(ServerPlayerEntity player) {
-            return Text.translatable("text.plasmid.game.leave.spectate", player.getDisplayName());
+        public static MutableComponent spectator(ServerPlayer player) {
+            return Component.translatable("text.plasmid.game.leave.spectate", player.getDisplayName());
         }
     }
 
 
     public static final class Kick {
-        public static MutableText kick(ServerCommandSource source, ServerPlayerEntity target) {
-            return source.isExecutedByPlayer() ? kickBy(source.getPlayer(), target) : kick(target);
+        public static MutableComponent kick(CommandSourceStack source, ServerPlayer target) {
+            return source.isPlayer() ? kickBy(source.getPlayer(), target) : kick(target);
         }
 
-        public static MutableText kickBy(ServerPlayerEntity source, ServerPlayerEntity target) {
-            return Text.translatable("text.plasmid.game.kick.by", target.getDisplayName(), source.getDisplayName());
+        public static MutableComponent kickBy(ServerPlayer source, ServerPlayer target) {
+            return Component.translatable("text.plasmid.game.kick.by", target.getDisplayName(), source.getDisplayName());
         }
 
-        public static MutableText kick(ServerPlayerEntity target) {
-            return Text.translatable("text.plasmid.game.kick", target.getDisplayName());
+        public static MutableComponent kick(ServerPlayer target) {
+            return Component.translatable("text.plasmid.game.kick", target.getDisplayName());
         }
     }
 }

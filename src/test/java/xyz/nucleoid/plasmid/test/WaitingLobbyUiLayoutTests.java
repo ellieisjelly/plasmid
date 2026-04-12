@@ -4,13 +4,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
-import net.minecraft.Bootstrap;
 import net.minecraft.SharedConstants;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.Bootstrap;
+import net.minecraft.world.item.Items;
 import xyz.nucleoid.plasmid.api.game.common.ui.WaitingLobbyUiLayout;
 import xyz.nucleoid.plasmid.impl.game.common.ui.ExtensionGuiElement;
 import xyz.nucleoid.plasmid.impl.game.common.ui.WaitingLobbyUiLayoutImpl;
@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WaitingLobbyUiLayoutTests {
     @BeforeAll
     public static void beforeAll() {
-        SharedConstants.createGameVersion();
-        Bootstrap.initialize();
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
     }
 
     @Test
@@ -182,7 +182,7 @@ public class WaitingLobbyUiLayoutTests {
         });
     }
 
-    private static void expectBuiltLayout(BiConsumer<WaitingLobbyUiLayout, Char2ObjectMap<GuiElementInterface>> consumer, String expectedPattern) {
+    private static void expectBuiltLayout(BiConsumer<WaitingLobbyUiLayout, Char2ObjectMap<GuiElement>> consumer, String expectedPattern) {
         var map = createGuiElementMap();
         var expected = buildGuiElementsFromPattern(expectedPattern, map);
 
@@ -195,12 +195,12 @@ public class WaitingLobbyUiLayoutTests {
         layout.refresh();
     }
 
-    private static Char2ObjectMap<GuiElementInterface> createGuiElementMap() {
-        var map = new Char2ObjectOpenHashMap<GuiElementInterface>();
+    private static Char2ObjectMap<GuiElement> createGuiElementMap() {
+        var map = new Char2ObjectOpenHashMap<GuiElement>();
 
         for (char c = 'A'; c <= 'Z'; c++) {
             var element = new GuiElementBuilder(Items.PAPER)
-                    .setName(Text.literal("" + c))
+                    .setName(Component.literal("" + c))
                     .build();
 
             map.put(c, element);
@@ -209,8 +209,8 @@ public class WaitingLobbyUiLayoutTests {
         return map;
     }
 
-    private static GuiElementInterface[] buildGuiElementsFromPattern(String pattern, Char2ObjectMap<GuiElementInterface> map) {
-        var array = new GuiElementInterface[pattern.length()];
+    private static GuiElement[] buildGuiElementsFromPattern(String pattern, Char2ObjectMap<GuiElement> map) {
+        var array = new GuiElement[pattern.length()];
 
         for (int i = 0; i < pattern.length(); i++) {
             char c = pattern.charAt(i);
@@ -220,7 +220,7 @@ public class WaitingLobbyUiLayoutTests {
         return array;
     }
 
-    private static void extractExtensionGuiElements(GuiElementInterface[] elements) {
+    private static void extractExtensionGuiElements(GuiElement[] elements) {
         for (int index = 0; index < elements.length; index++) {
             if (elements[index] instanceof ExtensionGuiElement element) {
                 elements[index] = element.delegate();

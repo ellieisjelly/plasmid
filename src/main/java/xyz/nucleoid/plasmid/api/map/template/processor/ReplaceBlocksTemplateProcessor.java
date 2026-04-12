@@ -2,14 +2,14 @@ package xyz.nucleoid.plasmid.api.map.template.processor;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.context.ContextParameterMap;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 import java.util.Map;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 /**
  * Template processor that replaces blocks in a template with specified blocks.
@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Hugman
  */
 public record ReplaceBlocksTemplateProcessor(Map<Block, Block> blocks) implements MapTemplateProcessor {
-    public static final MapCodec<ReplaceBlocksTemplateProcessor> CODEC = Codec.unboundedMap(Registries.BLOCK.getCodec(), Registries.BLOCK.getCodec()).fieldOf("blocks").xmap(ReplaceBlocksTemplateProcessor::new, ReplaceBlocksTemplateProcessor::blocks);
+    public static final MapCodec<ReplaceBlocksTemplateProcessor> CODEC = Codec.unboundedMap(BuiltInRegistries.BLOCK.byNameCodec(), BuiltInRegistries.BLOCK.byNameCodec()).fieldOf("blocks").xmap(ReplaceBlocksTemplateProcessor::new, ReplaceBlocksTemplateProcessor::blocks);
 
     @Override
     public MapCodec<? extends MapTemplateProcessor> getCodec() {
@@ -27,7 +27,7 @@ public record ReplaceBlocksTemplateProcessor(Map<Block, Block> blocks) implement
     }
 
     @Override
-    public void processTemplate(MapTemplate template, ContextParameterMap.Builder parameters) {
+    public void processTemplate(MapTemplate template, ContextMap.Builder parameters) {
         template.getBounds().forEach(pos -> {
             var state = template.getBlockState(pos);
             var block = state.getBlock();
@@ -39,9 +39,9 @@ public record ReplaceBlocksTemplateProcessor(Map<Block, Block> blocks) implement
                 }
             }
             if (newBlock != null) {
-                BlockState newState = newBlock.getDefaultState();
+                BlockState newState = newBlock.defaultBlockState();
                 for (Property property : state.getProperties()) {
-                    newState = newState.contains(property) ? newState.with(property, state.get(property)) : newState;
+                    newState = newState.hasProperty(property) ? newState.setValue(property, state.getValue(property)) : newState;
                 }
                 template.setBlockState(pos, newState);
             }

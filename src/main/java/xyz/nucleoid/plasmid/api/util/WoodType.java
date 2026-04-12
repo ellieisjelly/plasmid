@@ -1,13 +1,13 @@
 package xyz.nucleoid.plasmid.api.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.resource.featuretoggle.FeatureFlag;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.world.flag.FeatureFlag;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public enum WoodType {
     OAK(Type.REGULAR, Blocks.OAK_SAPLING, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.OAK_WOOD, Blocks.STRIPPED_OAK_LOG, Blocks.STRIPPED_OAK_WOOD, Blocks.OAK_PLANKS, Blocks.OAK_SLAB, Blocks.OAK_STAIRS, Blocks.OAK_FENCE, Blocks.OAK_FENCE_GATE, Blocks.OAK_DOOR, Blocks.OAK_SIGN, Blocks.OAK_WALL_SIGN, Blocks.OAK_HANGING_SIGN, Blocks.OAK_WALL_HANGING_SIGN, Blocks.OAK_BUTTON, Blocks.OAK_PRESSURE_PLATE, Items.OAK_BOAT, Items.OAK_CHEST_BOAT),
@@ -28,7 +28,7 @@ public enum WoodType {
     private final Block plant, leaves, log, wood, strippedLog, strippedWood, planks, slab, stairs, fence, fenceGate, door, sign, wallSign, hangingSign, wallHangingSign, button, pressurePlate;
     private final Item boat, chestBoat;
     private final Type type;
-    private final FeatureSet requiredFeatures;
+    private final FeatureFlagSet requiredFeatures;
 
     WoodType(Type type,  Block plant, Block leaves, Block log, Block wood, Block strippedLog, Block strippedWood, Block planks, Block slab, Block stairs,
              Block fence, Block fenceGate, Block door, Block sign, Block wallSign, Block hangingSign, Block hangingWallSign, Block button, Block pressurePlate, Item boat, Item chestBoat, FeatureFlag... requiredFeatures) {
@@ -54,7 +54,7 @@ public enum WoodType {
         this.boat = boat;
         this.chestBoat = chestBoat;
 
-        this.requiredFeatures = FeatureFlags.FEATURE_MANAGER.featureSetOf(requiredFeatures);
+        this.requiredFeatures = FeatureFlags.REGISTRY.subset(requiredFeatures);
     }
 
     public static WoodType getType(Block block) {
@@ -88,11 +88,11 @@ public enum WoodType {
         }
     }
 
-    public boolean isEnabled(FeatureSet enabledFeatures) {
+    public boolean isEnabled(FeatureFlagSet enabledFeatures) {
         return this.getRequiredFeatures().isSubsetOf(enabledFeatures);
     }
 
-    public FeatureSet getRequiredFeatures() {
+    public FeatureFlagSet getRequiredFeatures() {
         return this.requiredFeatures;
     }
 

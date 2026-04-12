@@ -1,8 +1,8 @@
 package xyz.nucleoid.plasmid.api.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.DyeColor;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public final class ColoredBlocks {
     public static Block wool(DyeColor color) {

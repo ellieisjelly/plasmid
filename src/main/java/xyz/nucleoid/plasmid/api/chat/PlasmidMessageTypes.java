@@ -1,14 +1,14 @@
 package xyz.nucleoid.plasmid.api.chat;
 
-import net.minecraft.network.message.MessageType;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.resources.ResourceKey;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 
 public final class PlasmidMessageTypes {
-    public static final RegistryKey<MessageType> TEAM_CHAT = createKey("team_chat");
+    public static final ResourceKey<ChatType> TEAM_CHAT = createKey("team_chat");
 
-    private static RegistryKey<MessageType> createKey(String key) {
-        return RegistryKey.of(RegistryKeys.MESSAGE_TYPE, Plasmid.id(key));
+    private static ResourceKey<ChatType> createKey(String key) {
+        return ResourceKey.create(Registries.CHAT_TYPE, Plasmid.id(key));
     }
 }

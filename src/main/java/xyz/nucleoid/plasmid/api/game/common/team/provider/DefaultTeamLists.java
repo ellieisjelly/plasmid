@@ -1,9 +1,5 @@
 package xyz.nucleoid.plasmid.api.game.common.team.provider;
 
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
@@ -11,6 +7,10 @@ import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.DyeColor;
 
 /**
  * Default team lists for various game sizes from 1 to 16 teams.
@@ -127,20 +127,20 @@ public final class DefaultTeamLists {
         // black text is barely readable, so we use dark gray instead
         var colors = dyeColor == DyeColor.BLACK ?
                 new GameTeamConfig.Colors(
-                        Formatting.DARK_GRAY,
-                        TextColor.fromRgb(dyeColor.getEntityColor()),
+                        ChatFormatting.DARK_GRAY,
+                        TextColor.fromRgb(dyeColor.getTextureDiffuseColor()),
                         dyeColor,
                         TextColor.fromRgb(dyeColor.getFireworkColor())
                 )
                 : GameTeamConfig.Colors.from(dyeColor);
 
         return new GameTeam(new GameTeamKey(name), GameTeamConfig.builder()
-                .setName(Text.translatable("color.minecraft." + name))
+                .setName(Component.translatable("color.minecraft." + name))
                 .setColors(colors)
                 .build());
     }
 
     private static GameTeam createTeam(DyeColor dyeColor) {
-        return createTeam(dyeColor.getId(), dyeColor);
+        return createTeam(dyeColor.getName(), dyeColor);
     }
 }

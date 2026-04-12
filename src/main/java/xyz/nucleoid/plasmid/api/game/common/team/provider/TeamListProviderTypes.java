@@ -1,8 +1,8 @@
 package xyz.nucleoid.plasmid.api.game.common.team.provider;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.plasmid.api.registry.PlasmidRegistries;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 
@@ -18,7 +18,7 @@ public class TeamListProviderTypes {
     public static final MapCodec<SizedAlternativesTeamListProvider> SIZED_ALTERNATIVES = of("sized_alternatives", SizedAlternativesTeamListProvider.CODEC);
 
     private static <T extends TeamListProvider> MapCodec<T> of(String name, MapCodec<T> codec) {
-        return of(Identifier.of(Plasmid.ID, name), codec);
+        return of(Identifier.fromNamespaceAndPath(Plasmid.ID, name), codec);
     }
 
     public static <T extends TeamListProvider> MapCodec<T> of(Identifier identifier, MapCodec<T> codec) {

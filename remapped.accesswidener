@@ -1,5 +1,4 @@
-accessWidener	v1	official
-
+accessWidener	v1	named
 accessible	method	net/minecraft/world/entity/decoration/ArmorStand	setMarker	(Z)V
 accessible	field	net/minecraft/world/entity/EntityType	factory	Lnet/minecraft/world/entity/EntityType$EntityFactory;
 accessible	field	net/minecraft/world/entity/EntityType	immuneTo	Lcom/google/common/collect/ImmutableSet;

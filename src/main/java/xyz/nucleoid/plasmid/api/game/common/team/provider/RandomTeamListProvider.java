@@ -1,10 +1,10 @@
 package xyz.nucleoid.plasmid.api.game.common.team.provider;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
 
 import java.util.List;
+import net.minecraft.util.RandomSource;
 
 /**
  * Team provider that randomly selects a team list from a list of providers.
@@ -15,7 +15,7 @@ public record RandomTeamListProvider(List<TeamListProvider> providers) implement
     public static final MapCodec<RandomTeamListProvider> CODEC = TeamListProvider.CODEC.listOf().fieldOf("providers").xmap(RandomTeamListProvider::new, RandomTeamListProvider::providers);
 
     @Override
-    public GameTeamList get(Random random) {
+    public GameTeamList get(RandomSource random) {
         return providers.get(random.nextInt(providers.size())).get(random);
     }
 

@@ -2,8 +2,8 @@ package xyz.nucleoid.plasmid.impl.portal;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.api.game.config.CustomValuesConfig;
 import xyz.nucleoid.plasmid.api.portal.GamePortalConfigs;
 import xyz.nucleoid.plasmid.api.registry.PlasmidRegistries;
@@ -17,7 +17,7 @@ public interface GamePortalConfig {
      */
     @Deprecated
     TinyRegistry<MapCodec<? extends GamePortalConfig>> REGISTRY = new TinyRegistry.Fake<>(PlasmidRegistries.GAME_PORTAL_CONFIG);
-    Codec<GamePortalConfig> CODEC = PlasmidRegistries.GAME_PORTAL_CONFIG.getCodec().dispatchStable(GamePortalConfig::codec, Function.identity());
+    Codec<GamePortalConfig> CODEC = PlasmidRegistries.GAME_PORTAL_CONFIG.byNameCodec().dispatchStable(GamePortalConfig::codec, Function.identity());
 
     /**
      * @deprecated Use {@link GamePortalConfigs#register(Identifier, MapCodec)} instead.

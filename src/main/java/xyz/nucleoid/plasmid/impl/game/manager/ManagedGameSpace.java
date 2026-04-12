@@ -3,14 +3,14 @@ package xyz.nucleoid.plasmid.impl.game.manager;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.fantasy.RuntimeWorldHandle;
+import xyz.nucleoid.fantasy.RuntimeLevelHandle;
 import xyz.nucleoid.plasmid.api.game.*;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
@@ -32,7 +32,7 @@ public final class ManagedGameSpace implements GameSpace {
     private final GameSpaceMetadata metadata;
 
     private final ManagedGameSpacePlayers players;
-    private final ManagedGameSpaceWorlds worlds;
+    private final ManagedGameSpaceLevels worlds;
 
     private final GameLifecycle lifecycle = new GameLifecycle();
 
@@ -51,9 +51,9 @@ public final class ManagedGameSpace implements GameSpace {
         this.metadata = metadata;
 
         this.players = new ManagedGameSpacePlayers(this);
-        this.worlds = new ManagedGameSpaceWorlds(this);
+        this.worlds = new ManagedGameSpaceLevels(this);
 
-        this.openTime = server.getOverworld().getTime();
+        this.openTime = server.overworld().getGameTime();
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class ManagedGameSpace implements GameSpace {
     }
 
     public void closeWithError(String message) {
-        this.getPlayers().sendMessage(Text.literal(message).formatted(Formatting.RED));
+        this.getPlayers().sendMessage(Component.literal(message).withStyle(ChatFormatting.RED));
         this.close(GameCloseReason.ERRORED);
     }
 
@@ -127,7 +127,7 @@ public final class ManagedGameSpace implements GameSpace {
             }
 
             for (var world : this.worlds) {
-                this.manager.removeDimensionFromGameSpace(this, world.getRegistryKey());
+                this.manager.removeDimensionFromGameSpace(this, world.dimension());
             }
 
             this.players.clear();
@@ -145,7 +145,7 @@ public final class ManagedGameSpace implements GameSpace {
     }
 
     @Override
-    public ManagedGameSpaceWorlds getWorlds() {
+    public ManagedGameSpaceLevels getLevels() {
         return this.worlds;
     }
 
@@ -161,7 +161,7 @@ public final class ManagedGameSpace implements GameSpace {
 
     @Override
     public long getTime() {
-        return this.server.getOverworld().getTime() - this.openTime;
+        return this.server.overworld().getGameTime() - this.openTime;
     }
 
     @Override
@@ -217,7 +217,7 @@ public final class ManagedGameSpace implements GameSpace {
     }
 
 
-    void onAddPlayer(ServerPlayerEntity player) {
+    void onAddPlayer(ServerPlayer player) {
         this.state.propagatingInvoker(GamePlayerEvents.JOIN).onAddPlayer(player);
         this.state.propagatingInvoker(GamePlayerEvents.ADD).onAddPlayer(player);
 
@@ -226,7 +226,7 @@ public final class ManagedGameSpace implements GameSpace {
         this.lifecycle.onAddPlayer(this, player);
 
         var spectator = this.players.spectators().contains(player);
-        Text joinMessage = (spectator ? GameTexts.Join.successSpectator(player) : GameTexts.Join.success(player)).formatted(Formatting.YELLOW);
+        Component joinMessage = (spectator ? GameTexts.Join.successSpectator(player) : GameTexts.Join.success(player)).withStyle(ChatFormatting.YELLOW);
         joinMessage = this.state.invoker(GamePlayerEvents.JOIN_MESSAGE).onJoinMessageCreation(player, joinMessage, joinMessage);
         GameEvents.PLAYER_JOIN.invoker().onPlayerJoin(this, player);
 
@@ -235,9 +235,9 @@ public final class ManagedGameSpace implements GameSpace {
         }
     }
 
-    void onPlayerRemove(ServerPlayerEntity player) {
+    void onPlayerRemove(ServerPlayer player) {
         var spectator = this.players.spectators().contains(player);
-        Text leaveMessage = (spectator ? GameTexts.Leave.spectator(player) : GameTexts.Leave.participant(player)).formatted(Formatting.YELLOW);
+        Component leaveMessage = (spectator ? GameTexts.Leave.spectator(player) : GameTexts.Leave.participant(player)).withStyle(ChatFormatting.YELLOW);
         leaveMessage = this.state.invoker(GamePlayerEvents.LEAVE_MESSAGE).onLeaveMessageCreation(player, leaveMessage, leaveMessage);
 
         this.state.invoker(GamePlayerEvents.LEAVE).onRemovePlayer(player);
@@ -251,17 +251,17 @@ public final class ManagedGameSpace implements GameSpace {
         if (leaveMessage != null) {
             for (var receiver : this.players) {
                 if (receiver != player) {
-                    receiver.sendMessage(leaveMessage);
+                    receiver.sendSystemMessage(leaveMessage);
                 }
             }
         }
     }
 
-    void onAddWorld(RuntimeWorldHandle worldHandle) {
-        this.manager.addDimensionToGameSpace(this, worldHandle.asWorld().getRegistryKey());
+    void onAddLevel(RuntimeLevelHandle worldHandle) {
+        this.manager.addDimensionToGameSpace(this, worldHandle.asLevel().dimension());
     }
 
-    void onRemoveWorld(RegistryKey<World> dimension) {
+    void onRemoveLevel(ResourceKey<Level> dimension) {
         this.manager.removeDimensionFromGameSpace(this, dimension);
     }
 }

@@ -3,9 +3,9 @@ package xyz.nucleoid.plasmid.api.registry;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import xyz.nucleoid.plasmid.api.game.GameType;
 import xyz.nucleoid.plasmid.api.game.common.team.provider.TeamListProvider;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
@@ -20,8 +20,8 @@ public class PlasmidRegistries {
     public static final Registry<MapCodec<? extends TeamListProvider>> TEAM_LIST_PROVIDER_TYPE = register(PlasmidRegistryKeys.TEAM_LIST_PROVIDER_TYPE);
     public static final Registry<MapCodec<? extends MapTemplateProcessor>> MAP_TEMPLATE_PROCESSOR_TYPE = register(PlasmidRegistryKeys.MAP_TEMPLATE_PROCESSOR_TYPE);
 
-    private static <T> SimpleRegistry<T> register(RegistryKey<Registry<T>> key) {
-        return FabricRegistryBuilder.createSimple(key).buildAndRegister();
+    private static <T> MappedRegistry<T> register(ResourceKey<Registry<T>> key) {
+        return FabricRegistryBuilder.create(key).buildAndRegister();
     }
 
     public static void registerDynamicRegistries() {

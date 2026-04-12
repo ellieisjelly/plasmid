@@ -4,12 +4,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.math.intprovider.ConstantIntProvider;
-import net.minecraft.util.math.intprovider.IntProvider;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.valueproviders.IntProviders;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
 
 import java.util.Map;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
 
 /**
  * Teams provider that provides other providers based on a set size. That size may be fixed or randomized using an {@link IntProvider}.
@@ -23,14 +24,14 @@ public record SizedAlternativesTeamListProvider(
     private static final Map<Integer, TeamListProvider> DEFAULT_ALTERNATIVES = DefaultTeamLists.MAP;
 
     public static final MapCodec<SizedAlternativesTeamListProvider> CODEC = RecordCodecBuilder.<SizedAlternativesTeamListProvider>mapCodec(instance -> instance.group(
-                            IntProvider.POSITIVE_CODEC.fieldOf("size").forGetter(SizedAlternativesTeamListProvider::size),
+                            IntProviders.POSITIVE_CODEC.fieldOf("size").forGetter(SizedAlternativesTeamListProvider::size),
                             Codec.unboundedMap(Codec.INT, TeamListProvider.CODEC).validate(SizedAlternativesTeamListProvider::validateAlternatives).optionalFieldOf("alternatives", DEFAULT_ALTERNATIVES).forGetter(SizedAlternativesTeamListProvider::map)
                     ).apply(instance, SizedAlternativesTeamListProvider::new)
             )
             .validate(SizedAlternativesTeamListProvider::validate);
 
     public SizedAlternativesTeamListProvider(int size, Map<Integer, TeamListProvider> map) {
-        this(ConstantIntProvider.create(size), map);
+        this(ConstantInt.of(size), map);
     }
 
     public SizedAlternativesTeamListProvider(IntProvider size) {
@@ -38,11 +39,11 @@ public record SizedAlternativesTeamListProvider(
     }
 
     public SizedAlternativesTeamListProvider(int size) {
-        this(ConstantIntProvider.create(size));
+        this(ConstantInt.of(size));
     }
 
     private static DataResult<SizedAlternativesTeamListProvider> validate(SizedAlternativesTeamListProvider provider) {
-        return provider.size.getMax() <= provider.map.size() ? DataResult.success(provider) : DataResult.error(() -> "The size provider cannot provide more teams than the maximum ");
+        return provider.size.maxInclusive() <= provider.map.size() ? DataResult.success(provider) : DataResult.error(() -> "The size provider cannot provide more teams than the maximum ");
     }
 
     private static DataResult<Map<Integer, TeamListProvider>> validateAlternatives(Map<Integer, TeamListProvider> map) {
@@ -56,8 +57,8 @@ public record SizedAlternativesTeamListProvider(
     }
 
     @Override
-    public GameTeamList get(Random random) {
-        return this.map.get(this.size.get(random)).get(random);
+    public GameTeamList get(RandomSource random) {
+        return this.map.get(this.size.sample(random)).get(random);
     }
 
     @Override

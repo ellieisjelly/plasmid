@@ -8,12 +8,12 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.nucleoid.plasmid.api.event.GameEvents;
@@ -53,10 +53,10 @@ public final class Plasmid implements ModInitializer {
     }
 
     public static Identifier id(String path) {
-        return Identifier.of(Plasmid.ID, path);
+        return Identifier.fromNamespaceAndPath(Plasmid.ID, path);
     }
 
-    private void loadData(DynamicRegistryManager registryManager, ResourceManager manager) {
+    private void loadData(RegistryAccess registryManager, ResourceManager manager) {
         GamePortalManager.INSTANCE.reload(registryManager, manager);
     }
 
@@ -74,20 +74,20 @@ public final class Plasmid implements ModInitializer {
 
         UseEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
             if (
-                    player instanceof ServerPlayerEntity serverPlayer
+                    player instanceof ServerPlayer serverPlayer
                             && entity instanceof GamePortalInterface portalInterface
-                            && hand == Hand.MAIN_HAND
+                            && hand == InteractionHand.MAIN_HAND
             ) {
                 if (portalInterface.interactWithPortal(serverPlayer)) {
-                    return ActionResult.SUCCESS_SERVER;
+                    return InteractionResult.SUCCESS_SERVER;
                 }
             }
 
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
 
-        ServerTickEvents.END_WORLD_TICK.register(world -> {
-            var game = GameSpaceManagerImpl.get().byWorld(world);
+        ServerTickEvents.END_LEVEL_TICK.register(world -> {
+            var game = GameSpaceManagerImpl.get().byLevel(world);
             if (game != null) {
                 try {
                     game.getBehavior().propagatingInvoker(GameActivityEvents.TICK).onTick();
@@ -104,7 +104,7 @@ public final class Plasmid implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             GameSpaceManagerImpl.openServer(server);
             GamePortalManager.INSTANCE.setup(server);
-            loadData(server.getRegistryManager(), server.getResourceManager());
+            loadData(server.registryAccess(), server.getResourceManager());
             PlasmidConfig.get().webServerConfig().ifPresent(config -> {
                 httpServer = PlasmidWebServer.start(server, config);
             });
@@ -123,7 +123,7 @@ public final class Plasmid implements ModInitializer {
         });
 
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(((server, resourceManager, success) -> {
-            loadData(server.getRegistryManager(), resourceManager);
+            loadData(server.registryAccess(), resourceManager);
         }));
 
         // For games to debug their statistic collection without needing to setup a backend

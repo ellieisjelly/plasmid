@@ -1,8 +1,8 @@
 package xyz.nucleoid.plasmid.api.game;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
@@ -68,17 +68,17 @@ public final class GameType<C> {
         return this.configCodec;
     }
 
-    public Text name() {
-        return Text.translatable(this.translationKey());
+    public Component name() {
+        return Component.translatable(this.translationKey());
     }
 
     public String translationKey() {
-        return Util.createTranslationKey("gameType", this.id);
+        return Util.makeDescriptionId("gameType", this.id);
     }
 
     @Nullable
     public static GameType<?> get(Identifier identifier) {
-        return PlasmidRegistries.GAME_TYPE.get(identifier);
+        return PlasmidRegistries.GAME_TYPE.getValue(identifier);
     }
 
     public interface Open<C> {

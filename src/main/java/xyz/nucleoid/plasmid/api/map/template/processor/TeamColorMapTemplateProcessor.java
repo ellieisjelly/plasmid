@@ -1,12 +1,6 @@
 package xyz.nucleoid.plasmid.api.map.template.processor;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.context.ContextParameterMap;
-import net.minecraft.util.context.ContextType;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.plasmid.api.game.GameOpenException;
 import xyz.nucleoid.plasmid.api.map.MapLoadContexts;
@@ -15,6 +9,12 @@ import xyz.nucleoid.plasmid.api.util.ColoredItems;
 
 import java.util.HashMap;
 import java.util.List;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Template processor that recolors blocks and items found in block entities (by their ID) in a template with team-specific colors.
@@ -31,7 +31,7 @@ import java.util.List;
 public record TeamColorMapTemplateProcessor(List<DyeColor> baseColors) implements MapTemplateProcessor {
     public static final MapCodec<TeamColorMapTemplateProcessor> CODEC = DyeColor.CODEC.listOf().fieldOf("base_colors").xmap(TeamColorMapTemplateProcessor::new, TeamColorMapTemplateProcessor::baseColors);
 
-    private static final ContextType CONTEXT_TYPE = new ContextType.Builder().require(MapLoadContexts.TEAM_LIST).build();
+    private static final ContextKeySet CONTEXT_TYPE = new ContextKeySet.Builder().required(MapLoadContexts.TEAM_LIST).build();
 
     @Override
     public MapCodec<? extends MapTemplateProcessor> getCodec() {
@@ -39,12 +39,12 @@ public record TeamColorMapTemplateProcessor(List<DyeColor> baseColors) implement
     }
 
     @Override
-    public void processTemplate(MapTemplate template, ContextParameterMap.Builder parameters) {
-        parameters.build(CONTEXT_TYPE);
-        var teamList = parameters.getOrThrow(MapLoadContexts.TEAM_LIST).list();
+    public void processTemplate(MapTemplate template, ContextMap.Builder parameters) {
+        parameters.create(CONTEXT_TYPE);
+        var teamList = parameters.getParameter(MapLoadContexts.TEAM_LIST).list();
 
         if (teamList.size() > this.baseColors.size()) {
-            throw new GameOpenException(Text.literal("Not enough base colors provided for the number of teams."));
+            throw new GameOpenException(Component.literal("Not enough base colors provided for the number of teams."));
         }
 
         var blockMap = new HashMap<Block, Block>();
@@ -64,15 +64,15 @@ public record TeamColorMapTemplateProcessor(List<DyeColor> baseColors) implement
             blockMap.put(ColoredBlocks.shulkerBox(baseColor), ColoredBlocks.shulkerBox(teamColor));
             blockMap.put(ColoredBlocks.candle(baseColor), ColoredBlocks.candle(teamColor));
             blockMap.put(ColoredBlocks.candleCake(baseColor), ColoredBlocks.candleCake(teamColor));
-            blockEntityReplace.put(Registries.ITEM.getId(ColoredItems.dye(baseColor)).toString(), Registries.ITEM.getId(ColoredItems.dye(teamColor)).toString());
-            blockEntityReplace.put(Registries.ITEM.getId(ColoredItems.bundle(baseColor)).toString(), Registries.ITEM.getId(ColoredItems.bundle(teamColor)).toString());
-            blockEntityReplace.put(Registries.ITEM.getId(ColoredItems.harness(baseColor)).toString(), Registries.ITEM.getId(ColoredItems.harness(teamColor)).toString());
+            blockEntityReplace.put(BuiltInRegistries.ITEM.getKey(ColoredItems.dye(baseColor)).toString(), BuiltInRegistries.ITEM.getKey(ColoredItems.dye(teamColor)).toString());
+            blockEntityReplace.put(BuiltInRegistries.ITEM.getKey(ColoredItems.bundle(baseColor)).toString(), BuiltInRegistries.ITEM.getKey(ColoredItems.bundle(teamColor)).toString());
+            blockEntityReplace.put(BuiltInRegistries.ITEM.getKey(ColoredItems.harness(baseColor)).toString(), BuiltInRegistries.ITEM.getKey(ColoredItems.harness(teamColor)).toString());
         }
 
         new ReplaceBlocksTemplateProcessor(blockMap).processTemplate(template, parameters);
 
         for (var entry : blockMap.entrySet()) {
-            blockEntityReplace.put(Registries.BLOCK.getId(entry.getKey()).toString(), Registries.BLOCK.getId(entry.getValue()).toString());
+            blockEntityReplace.put(BuiltInRegistries.BLOCK.getKey(entry.getKey()).toString(), BuiltInRegistries.BLOCK.getKey(entry.getValue()).toString());
         }
         new ReplaceBlockEntitiesTemplateProcessor(blockEntityReplace).processTemplate(template, parameters);
     }

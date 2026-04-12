@@ -3,9 +3,10 @@ package xyz.nucleoid.plasmid.api.game.common.team.provider;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.math.intprovider.ConstantIntProvider;
-import net.minecraft.util.math.intprovider.IntProvider;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
 
 /**
@@ -22,21 +23,21 @@ public record TrimTeamListProvider(
 
     public static final MapCodec<TrimTeamListProvider> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             TeamListProvider.CODEC.fieldOf("provider").forGetter(TrimTeamListProvider::provider),
-            IntProvider.POSITIVE_CODEC.fieldOf("size").forGetter(TrimTeamListProvider::size),
+            IntProviders.POSITIVE_CODEC.fieldOf("size").forGetter(TrimTeamListProvider::size),
             Codec.BOOL.optionalFieldOf("shuffle", DEFAULT_SHUFFLE).forGetter(TrimTeamListProvider::shuffle)
     ).apply(instance, TrimTeamListProvider::new));
 
     public TrimTeamListProvider(TeamListProvider provider, int size) {
-        this(provider, ConstantIntProvider.create(size), DEFAULT_SHUFFLE);
+        this(provider, ConstantInt.of(size), DEFAULT_SHUFFLE);
     }
 
     @Override
-    public GameTeamList get(Random random) {
+    public GameTeamList get(RandomSource random) {
         var list = provider.get(random).list();
         if (shuffle) {
             list = list.stream().sorted((a, b) -> random.nextInt(2) - 1).toList();
         }
-        return new GameTeamList(list.subList(0, Math.min(size.get(random), list.size())));
+        return new GameTeamList(list.subList(0, Math.min(size.sample(random), list.size())));
     }
 
     @Override

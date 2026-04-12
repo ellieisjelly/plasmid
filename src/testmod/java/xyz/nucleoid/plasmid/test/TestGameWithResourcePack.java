@@ -2,15 +2,16 @@ package xyz.nucleoid.plasmid.test;
 
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.rule.GameRules;
-import xyz.nucleoid.fantasy.RuntimeWorldConfig;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
+import org.w3c.dom.Text;
+import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.plasmid.api.game.*;
@@ -38,24 +39,24 @@ public final class TestGameWithResourcePack {
     private static final GameTeam TEAM = new GameTeam(
             new GameTeamKey("players"),
             GameTeamConfig.builder()
-                    .setNameTagVisibility(AbstractTeam.VisibilityRule.NEVER)
+                    .setNameTagVisibility(Team.Visibility.NEVER)
                     .build()
     );
 
     public static GameOpenProcedure open(GameOpenContext<TestConfig> context) {
         var template = generateMapTemplate();
 
-        var worldConfig = new RuntimeWorldConfig()
+        var worldConfig = new RuntimeLevelConfig()
                 .setGenerator(new TemplateChunkGenerator(context.server(), template))
-                .setTimeOfDay(6000)
+                //.setTimeOfDay(6000)
                 .setGameRule(GameRules.KEEP_INVENTORY, true);
 
-        return context.openWithWorld(worldConfig, (activity, world) -> {
+        return context.openWithLevel(worldConfig, (activity, world) -> {
             activity.listen(GamePlayerEvents.OFFER, JoinOffer::accept);
             activity.listen(GamePlayerEvents.ACCEPT, acceptor ->
-                    acceptor.teleport(world, new Vec3d(0.0, 65.0, 0.0))
+                    acceptor.teleport(world, new Vec3(0.0, 65.0, 0.0))
                             .thenRunForEach(joiningPlayer -> {
-                                joiningPlayer.changeGameMode(GameMode.ADVENTURE);
+                                joiningPlayer.setGameMode(GameType.ADVENTURE);
                             })
             );
 
@@ -93,24 +94,24 @@ public final class TestGameWithResourcePack {
 
             activity.listen(GamePlayerEvents.ADD, player -> {
                 teamManager.addPlayerTo(player, TEAM.key());
-                BlockMapper.set(player.networkHandler, TestInitializer.BLOCK_CREATOR.getBlockMapper());
+                BlockMapper.set(player.connection, TestInitializer.BLOCK_CREATOR.getBlockMapper());
                 PolymerUtils.reloadWorld(player);
             });
 
             var sidebar = GlobalWidgets.addTo(activity)
-                    .addSidebar(Text.translatable("text.test.test"));
+                    .addSidebar(Component.translatable("text.test.test"));
 
             activity.listen(GameActivityEvents.TICK, () -> {
                 long time = gameSpace.getTime() - currentTime;
                 if (time % 20 == 0) {
                     sidebar.set(b -> {
-                        b.add(Text.literal("Hello World! " + ((400 - time) / 20) + "s").setStyle(Style.EMPTY.withColor(0xFF0000)));
-                        b.add(ScreenTexts.EMPTY);
-                        b.add(Text.translatable("text.plasmid.game.started.player", "test"));
+                        b.add(Component.literal("Hello Level! " + ((400 - time) / 20) + "s").setStyle(Style.EMPTY.withColor(0xFF0000)));
+                        b.add(CommonComponents.EMPTY);
+                        b.add(Component.translatable("text.plasmid.game.started.player", "test"));
                     });
 
                     GameStatisticBundle statistics = gameSpace.getStatistics().bundle("plasmid_test_game");
-                    for (ServerPlayerEntity player : gameSpace.getPlayers()) {
+                    for (ServerPlayer player : gameSpace.getPlayers()) {
                         statistics.forPlayer(player).increment(TEST_KEY, 2.5);
                     }
                 }
@@ -125,7 +126,7 @@ public final class TestGameWithResourcePack {
                 }
             });
 
-            var world = gameSpace.getWorlds().iterator().next();
+            var world = gameSpace.getLevels().iterator().next();
 
             activity.listen(PlayerDeathEvent.EVENT, (player, source) -> {
                 player.setPos(0.0, 65.0, 0.0);
@@ -135,9 +136,9 @@ public final class TestGameWithResourcePack {
 
             activity.listen(GamePlayerEvents.OFFER, JoinOffer::accept);
             activity.listen(GamePlayerEvents.ACCEPT, acceptor ->
-                    acceptor.teleport(gameSpace.getWorlds().iterator().next(), new Vec3d(0.0, 65.0, 0.0))
+                    acceptor.teleport(gameSpace.getLevels().iterator().next(), new Vec3(0.0, 65.0, 0.0))
                             .thenRunForEach(joiningPlayer -> {
-                                joiningPlayer.changeGameMode(GameMode.ADVENTURE);
+                                joiningPlayer.setGameMode(GameType.ADVENTURE);
                             })
             );
         });
@@ -149,7 +150,7 @@ public final class TestGameWithResourcePack {
         var template = MapTemplate.createEmpty();
 
         for (var pos : BlockBounds.of(-5, 64, -5, 5, 64, 5)) {
-            template.setBlockState(pos, TestInitializer.TEST_BLOCK.getDefaultState());
+            template.setBlockState(pos, TestInitializer.TEST_BLOCK.defaultBlockState());
         }
 
         return template;

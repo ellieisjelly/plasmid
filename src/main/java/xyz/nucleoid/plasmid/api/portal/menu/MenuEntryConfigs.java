@@ -1,8 +1,8 @@
 package xyz.nucleoid.plasmid.api.portal.menu;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.plasmid.api.registry.PlasmidRegistries;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.plasmid.impl.portal.menu.*;

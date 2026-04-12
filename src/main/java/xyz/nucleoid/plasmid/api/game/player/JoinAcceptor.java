@@ -1,8 +1,6 @@
 package xyz.nucleoid.plasmid.api.game.player;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.api.util.PlayerPos;
@@ -13,6 +11,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Represents an agent which is responsible for bringing a player or group of players
@@ -98,7 +98,7 @@ public interface JoinAcceptor {
      * @see JoinAcceptorResult.Teleport#thenRun(Consumer)
      * @see JoinAcceptorResult.Teleport#thenRunForEach(Consumer)
      */
-    JoinAcceptorResult.Teleport teleport(ServerWorld world, Vec3d position, float yaw, float pitch);
+    JoinAcceptorResult.Teleport teleport(ServerLevel world, Vec3 position, float yaw, float pitch);
 
     /**
      * Returns a result that completes this join by teleporting the players.
@@ -112,7 +112,7 @@ public interface JoinAcceptor {
      * @see JoinAcceptorResult.Teleport#thenRun(Consumer)
      * @see JoinAcceptorResult.Teleport#thenRunForEach(Consumer)
      */
-    default JoinAcceptorResult.Teleport teleport(ServerWorld world, Vec3d position) {
+    default JoinAcceptorResult.Teleport teleport(ServerLevel world, Vec3 position) {
         return this.teleport(world, position, 0, 0);
     }
 

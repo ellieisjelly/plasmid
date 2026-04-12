@@ -1,7 +1,6 @@
 package xyz.nucleoid.plasmid.api.game.player;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.text.Text;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.GameTexts;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
@@ -10,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.minecraft.network.chat.Component;
 
 /**
  * Represents a request for of a player or group of players to join a {@link GameSpace}.
@@ -74,7 +74,7 @@ public interface JoinOffer {
      * @return a "reject" offer result
      * @see GameTexts.Join
      */
-    JoinOfferResult.Reject reject(Text reason);
+    JoinOfferResult.Reject reject(Component reason);
 
     /**
      * Returns an offer result that does nothing with this offer, passing on any handling to any other listener.

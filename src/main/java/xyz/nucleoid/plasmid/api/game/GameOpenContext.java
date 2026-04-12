@@ -1,9 +1,9 @@
 package xyz.nucleoid.plasmid.api.game;
 
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import xyz.nucleoid.fantasy.RuntimeWorldConfig;
+import net.minecraft.server.level.ServerLevel;
+import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 import xyz.nucleoid.stimuli.event.EventResult;
@@ -20,11 +20,11 @@ import java.util.function.Consumer;
  * @see GameOpenProcedure
  * @see GameType.Open
  */
-public record GameOpenContext<C>(MinecraftServer server, RegistryEntry<GameConfig<C>> gameConfig) {
+public record GameOpenContext<C>(MinecraftServer server, Holder<GameConfig<C>> gameConfig) {
 
     @Deprecated(forRemoval = true)
     public GameOpenContext(MinecraftServer server, GameConfig<C> game) {
-        this(server, RegistryEntry.of(game));
+        this(server, Holder.direct(game));
     }
 
     /**
@@ -56,9 +56,9 @@ public record GameOpenContext<C>(MinecraftServer server, RegistryEntry<GameConfi
      * @see GameActivity#listen(StimulusEvent, Object)
      * @see GameActivity#setRule(GameRuleType, EventResult)
      */
-    public GameOpenProcedure openWithWorld(RuntimeWorldConfig worldConfig, BiConsumer<GameActivity, ServerWorld> setup) {
+    public GameOpenProcedure openWithLevel(RuntimeLevelConfig worldConfig, BiConsumer<GameActivity, ServerLevel> setup) {
         return this.open(activity -> {
-            ServerWorld world = activity.getGameSpace().getWorlds().add(worldConfig);
+            ServerLevel world = activity.getGameSpace().getLevels().add(worldConfig);
             setup.accept(activity, world);
         });
     }

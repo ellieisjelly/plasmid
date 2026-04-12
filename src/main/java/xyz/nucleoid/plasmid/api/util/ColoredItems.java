@@ -1,8 +1,8 @@
 package xyz.nucleoid.plasmid.api.util;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.util.DyeColor;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 public final class ColoredItems {
     public static Item dye(DyeColor color) {

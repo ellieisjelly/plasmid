@@ -48,7 +48,7 @@ public class PlasmidWebServer {
     }
 
     private static InetSocketAddress createBindAddress(MinecraftServer server, Config config) {
-        var serverIp = server.getServerIp();
+        var serverIp = server.getLocalIp();
         if (!Strings.isNullOrEmpty(serverIp)) {
             return new InetSocketAddress(serverIp, config.port());
         } else {

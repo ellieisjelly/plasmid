@@ -3,27 +3,27 @@ package xyz.nucleoid.plasmid.mixin.game.space;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.advancement.PlayerAdvancementTracker;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.stat.ServerStatHandler;
-import net.minecraft.storage.NbtReadView;
-import net.minecraft.storage.NbtWriteView;
-import net.minecraft.storage.ReadView;
-import net.minecraft.util.ErrorReporter;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.stats.ServerStatsCounter;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
-import net.minecraft.world.PlayerSaveHandler;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.storage.PlayerDataStorage;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,30 +42,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mixin(PlayerManager.class)
+@Mixin(PlayerList.class)
 public abstract class PlayerManagerMixin implements PlayerManagerAccess {
     @Shadow
     @Final
     private MinecraftServer server;
     @Shadow
     @Final
-    private PlayerSaveHandler saveHandler;
+    private PlayerDataStorage playerIo;
     @Shadow
     @Final
-    private Map<UUID, ServerStatHandler> statisticsMap;
+    private Map<UUID, ServerStatsCounter> stats;
     @Shadow
     @Final
-    private Map<UUID, PlayerAdvancementTracker> advancementTrackers;
+    private Map<UUID, PlayerAdvancements> advancements;
 
     @Shadow
-    protected abstract void savePlayerData(ServerPlayerEntity player);
-
-    @Shadow
-    public abstract NbtCompound getUserData();
+    protected abstract void save(ServerPlayer player);
 
     @Shadow @Final private static Logger LOGGER;
-    @Shadow @Final private List<ServerPlayerEntity> players;
-    @Shadow @Final private Map<UUID, ServerPlayerEntity> playerMap;
+    @Shadow @Final private List<ServerPlayer> players;
+    @Shadow @Final private Map<UUID, ServerPlayer> playersByUUID;
 
     @Shadow public abstract MinecraftServer getServer();
 
@@ -73,7 +70,7 @@ public abstract class PlayerManagerMixin implements PlayerManagerAccess {
     private PlayerResetter playerResetter;
 
     @Inject(method = "remove", at = @At("RETURN"))
-    private void removePlayer(ServerPlayerEntity player, CallbackInfo ci) {
+    private void removePlayer(ServerPlayer player, CallbackInfo ci) {
         var gameSpace = GameSpaceManagerImpl.get().byPlayer(player);
         if (gameSpace != null) {
             gameSpace.getPlayers().remove(player);
@@ -81,17 +78,17 @@ public abstract class PlayerManagerMixin implements PlayerManagerAccess {
     }
 
     @Inject(
-            method = "respawnPlayer",
+            method = "respawn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;copyFrom(Lnet/minecraft/server/network/ServerPlayerEntity;Z)V",
+                    target = "Lnet/minecraft/server/level/ServerPlayer;restoreFrom(Lnet/minecraft/server/level/ServerPlayer;Z)V",
                     shift = At.Shift.AFTER
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void respawnPlayer(
-            ServerPlayerEntity oldPlayer, boolean alive, Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayerEntity> ci,
-            TeleportTarget respawnTarget, ServerWorld respawnWorld, ServerPlayerEntity respawnedPlayer
+            ServerPlayer oldPlayer, boolean alive, Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayer> ci,
+            TeleportTransition respawnTarget, ServerLevel respawnLevel, ServerPlayer respawnedPlayer
     ) {
         var gameSpace = GameSpaceManagerImpl.get().byPlayer(oldPlayer);
 
@@ -99,81 +96,82 @@ public abstract class PlayerManagerMixin implements PlayerManagerAccess {
             gameSpace.getPlayers().remove(oldPlayer);
 
             this.plasmid$loadIntoPlayer(respawnedPlayer);
-            respawnedPlayer.setServerWorld(respawnWorld);
+            respawnedPlayer.setServerLevel(respawnLevel);
 
             // this is later used to apply back to the respawned player, and we want to maintain that
-            var interactionManager = respawnedPlayer.interactionManager;
-            oldPlayer.interactionManager.setGameMode(interactionManager.getGameMode(), interactionManager.getPreviousGameMode());
+            var interactionManager = respawnedPlayer.gameMode;
+            oldPlayer.gameMode.setGameModeForPlayer(interactionManager.getGameModeForPlayer(), interactionManager.getPreviousGameModeForPlayer());
 
-            respawnedPlayer.setClientOptions(oldPlayer.getClientOptions());
+            respawnedPlayer.updateOptions(oldPlayer.clientInformation());
         }
     }
 
     @Override
-    public void plasmid$savePlayerData(ServerPlayerEntity player) {
-        this.savePlayerData(player);
+    public void plasmid$savePlayerData(ServerPlayer player) {
+        this.save(player);
     }
 
     @Override
-    public void plasmid$loadIntoPlayer(ServerPlayerEntity player) {
-        var userData = this.getUserData();
+    public void plasmid$loadIntoPlayer(ServerPlayer player) {
+        // Todo?
+        CompoundTag userData = null;//this.getSingleplayerData();
         if (userData == null) {
-            userData = this.server.getSaveProperties().getPlayerData();
+            //userData = this.server.getLevelData().getLoadedPlayerTag();
         }
 
-        ReadView playerData;
-        if (this.server.isHost(player.getPlayerConfigEntry()) && userData != null) {
-            playerData = NbtReadView.create(ErrorReporter.EMPTY, player.getRegistryManager(), userData);
-            player.readData(playerData);
+        ValueInput playerData;
+        if (this.server.isSingleplayerOwner(player.nameAndId()) && userData != null) {
+            playerData = TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), userData);
+            player.load(playerData);
         } else {
-            playerData = this.saveHandler.loadPlayerData(player.getPlayerConfigEntry())
-                    .map(compound -> NbtReadView.create(ErrorReporter.EMPTY, player.getRegistryManager(), compound))
+            playerData = this.playerIo.load(player.nameAndId())
+                    .map(compound -> TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), compound))
                     .orElse(null);
         }
 
         if (playerData != null) {
-            player.readData(playerData);
+            player.load(playerData);
         }
 
         var dimension = playerData != null ? this.getDimensionFromData(playerData) : null;
 
-        var world = this.server.getWorld(dimension);
+        var world = this.server.getLevel(dimension);
         if (world == null) {
-            world = this.server.getOverworld();
+            world = this.server.overworld();
         }
 
-        player.setServerWorld(world);
+        player.setServerLevel(world);
     }
 
     @Unique
-    private RegistryKey<World> getDimensionFromData(ReadView view) {
-        return view.read("Dimension", World.CODEC).orElse(World.OVERWORLD);
+    private ResourceKey<Level> getDimensionFromData(ValueInput view) {
+        return view.read("Dimension", Level.RESOURCE_KEY_CODEC).orElse(Level.OVERWORLD);
     }
 
     @WrapWithCondition(
-            method = "savePlayerData",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/PlayerSaveHandler;savePlayerData(Lnet/minecraft/entity/player/PlayerEntity;)V")
+            method = "save",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/PlayerDataStorage;save(Lnet/minecraft/world/entity/player/Player;)V")
     )
-    private boolean savePlayerData(PlayerSaveHandler handler, PlayerEntity player) {
+    private boolean savePlayerData(PlayerDataStorage handler, Player player) {
         return !GameSpaceManagerImpl.get().inGame(player);
     }
 
     @Override
     public PlayerResetter plasmid$getPlayerResetter() {
         if (this.playerResetter == null) {
-            var overworld = this.server.getOverworld();
+            var overworld = this.server.overworld();
             var profile = new GameProfile(Util.NIL_UUID, "null");
 
-            var player = new ServerPlayerEntity(this.server, overworld, profile, SyncedClientOptions.createDefault());
-            this.statisticsMap.remove(Util.NIL_UUID);
-            this.advancementTrackers.remove(Util.NIL_UUID);
+            var player = new ServerPlayer(this.server, overworld, profile, ClientInformation.createDefault());
+            this.stats.remove(Util.NIL_UUID);
+            this.advancements.remove(Util.NIL_UUID);
 
-            var tag = NbtWriteView.create(ErrorReporter.EMPTY, this.getServer().getRegistryManager());
-            player.writeData(tag);
-            tag.remove("UUID");
-            tag.remove("Pos");
+            var tag = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, this.getServer().registryAccess());
+            player.saveWithoutId(tag);
+            tag.discard("UUID");
+            tag.discard("Pos");
 
-            this.playerResetter = new PlayerResetter(tag.getNbt());
+            this.playerResetter = new PlayerResetter(tag.buildResult());
         }
 
         return this.playerResetter;

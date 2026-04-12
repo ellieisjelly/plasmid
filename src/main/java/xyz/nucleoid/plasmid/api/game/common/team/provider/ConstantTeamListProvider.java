@@ -1,11 +1,11 @@
 package xyz.nucleoid.plasmid.api.game.common.team.provider;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
 
 import java.util.List;
+import net.minecraft.util.RandomSource;
 
 /**
  * Team provider that provides a constant list of teams.
@@ -18,7 +18,7 @@ public record ConstantTeamListProvider(List<GameTeam> teams) implements TeamList
     public static final MapCodec<ConstantTeamListProvider> CODEC = GameTeam.CODEC.listOf().fieldOf("teams").xmap(ConstantTeamListProvider::new, ConstantTeamListProvider::teams);
 
     @Override
-    public GameTeamList get(Random random) {
+    public GameTeamList get(RandomSource random) {
         return new GameTeamList(teams);
     }
 

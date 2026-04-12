@@ -1,6 +1,6 @@
 package xyz.nucleoid.plasmid.api.game.stats;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 
 /**

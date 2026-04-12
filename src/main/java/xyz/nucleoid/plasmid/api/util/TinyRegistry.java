@@ -6,12 +6,12 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Set;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 
 public class TinyRegistry<T> implements Codec<T> {
     private final BiMap<Identifier, T> map = HashBiMap.create();
@@ -97,27 +97,27 @@ public class TinyRegistry<T> implements Codec<T> {
 
         @Override
         public @Nullable Identifier getIdentifier(T value) {
-            return this.registry.getId(value);
+            return this.registry.getKey(value);
         }
 
         @Override
         public boolean containsKey(Identifier identifier) {
-            return this.registry.containsId(identifier);
+            return this.registry.containsKey(identifier);
         }
 
         @Override
         public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> ops, U input) {
-            return this.registry.getCodec().decode(ops, input);
+            return this.registry.byNameCodec().decode(ops, input);
         }
 
         @Override
         public <U> DataResult<U> encode(T input, DynamicOps<U> ops, U prefix) {
-            return this.registry.getCodec().encode(input, ops, prefix);
+            return this.registry.byNameCodec().encode(input, ops, prefix);
         }
 
         @Override
         public Set<Identifier> keySet() {
-            return this.registry.getIds();
+            return this.registry.keySet();
         }
 
         @Override

@@ -6,28 +6,28 @@ import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 
 import java.util.Iterator;
 import java.util.UUID;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.PlayerList;
 
-public record ServerPlayerSet(PlayerList players) implements PlayerSet {
+public record ServerLevelPlayerSet(ServerLevel world) implements PlayerSet {
     @Override
     public boolean contains(UUID id) {
-        return this.players.getPlayer(id) != null;
+        return this.world.getPlayerByUUID(id) != null;
     }
 
     @Override
     @Nullable
     public ServerPlayer getEntity(UUID id) {
-        return this.players.getPlayer(id);
+        return (ServerPlayer) this.world.getPlayerByUUID(id);
     }
 
     @Override
     public int size() {
-        return this.players.getPlayers().size();
+        return this.world.players().size();
     }
 
     @Override
     public @NotNull Iterator<ServerPlayer> iterator() {
-        return this.players.getPlayers().iterator();
+        return this.world.players().iterator();
     }
 }

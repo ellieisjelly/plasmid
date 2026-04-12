@@ -1,23 +1,23 @@
 package xyz.nucleoid.plasmid.api.game.world.generator;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.source.BiomeAccess;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.biome.source.FixedBiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import xyz.nucleoid.fantasy.util.TransientChunkGenerator;
 
 import java.util.List;
@@ -29,29 +29,29 @@ public abstract class GameChunkGenerator extends TransientChunkGenerator {
     }
 
     public GameChunkGenerator(MinecraftServer server) {
-        this(createBiomeSource(server, BiomeKeys.THE_VOID));
+        this(createBiomeSource(server, Biomes.THE_VOID));
     }
 
-    protected static FixedBiomeSource createBiomeSource(MinecraftServer server, RegistryKey<Biome> biome) {
-        var registryManager = server.getRegistryManager();
-        return new FixedBiomeSource(registryManager.getOrThrow(RegistryKeys.BIOME).getOrThrow(biome));
-    }
-
-    @Override
-    public void addStructureReferences(StructureWorldAccess world, StructureAccessor accessor, Chunk chunk) {
+    protected static FixedBiomeSource createBiomeSource(MinecraftServer server, ResourceKey<Biome> biome) {
+        var registryManager = server.registryAccess();
+        return new FixedBiomeSource(registryManager.lookupOrThrow(Registries.BIOME).getOrThrow(biome));
     }
 
     @Override
-    public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+    public void createReferences(WorldGenLevel world, StructureManager accessor, ChunkAccess chunk) {
+    }
+
+    @Override
+    public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
         return CompletableFuture.completedFuture(chunk);
     }
 
     @Override
-    public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
+    public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {
     }
 
     @Override
-    public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
+    public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
     }
 
     @Override
@@ -60,34 +60,34 @@ public abstract class GameChunkGenerator extends TransientChunkGenerator {
     }
 
     @Override
-    public int getMinimumY() {
+    public int getMinY() {
         return 0;
     }
 
     @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
+    public int getBaseHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor world, RandomState noiseConfig) {
         return 0;
     }
 
     @Override
-    public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
+    public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor world, RandomState noiseConfig) {
         return GeneratorBlockSamples.VOID;
     }
 
     @Override
-    public void appendDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
+    public void addDebugScreenInfo(List<String> text, RandomState noiseConfig, BlockPos pos) {
     }
 
     @Override
-    public void populateEntities(ChunkRegion region) {
+    public void spawnOriginalMobs(WorldGenRegion region) {
     }
 
     @Override
-    public int getWorldHeight() {
+    public int getGenDepth() {
         return 0;
     }
 
     @Override
-    public void carve(ChunkRegion chunkRegion, long seed, NoiseConfig noiseConfig, BiomeAccess world, StructureAccessor structureAccessor, Chunk chunk) {
+    public void applyCarvers(WorldGenRegion chunkRegion, long seed, RandomState noiseConfig, BiomeManager world, StructureManager structureAccessor, ChunkAccess chunk) {
     }
 }

@@ -3,15 +3,16 @@ package xyz.nucleoid.plasmid.api.game.config;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryCodecs;
-import net.minecraft.registry.entry.RegistryElementCodec;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.codecs.MoreCodecs;
 import xyz.nucleoid.plasmid.api.game.GameOpenContext;
@@ -31,14 +32,14 @@ import java.util.Optional;
 
 public record GameConfig<C>(
         GameType<C> type,
-        @Nullable Text name,
-        @Nullable Text shortName,
-        @Nullable List<Text> description,
-        @Nullable ItemStack icon,
+        @Nullable Component name,
+        @Nullable Component shortName,
+        @Nullable List<Component> description,
+        @Nullable ItemStackTemplate iconTemplate,
         CustomValuesConfig custom,
         C config
 ) {
-    public static final Codec<GameConfig<?>> DIRECT_CODEC = PlasmidRegistries.GAME_TYPE.getCodec().dispatch(GameConfig::type, GameConfig::createTypedCodec);
+    public static final Codec<GameConfig<?>> DIRECT_CODEC = PlasmidRegistries.GAME_TYPE.byNameCodec().dispatch(GameConfig::type, GameConfig::createTypedCodec);
     @Deprecated
     public static final Codec<GameConfig<?>> REGISTRY_CODEC = Codec.lazyInitialized(() -> {
         if (!PlasmidConfig.get().ignoreInvalidGames()) {
@@ -55,15 +56,15 @@ public record GameConfig<C>(
                 ""
         )));
     });
-    public static final Codec<RegistryEntry<GameConfig<?>>> ENTRY_CODEC = RegistryElementCodec.of(PlasmidRegistryKeys.GAME_CONFIG, DIRECT_CODEC);
-    public static final Codec<RegistryEntryList<GameConfig<?>>> ENTRY_LIST_CODEC = RegistryCodecs.entryList(PlasmidRegistryKeys.GAME_CONFIG);
+    public static final Codec<Holder<GameConfig<?>>> ENTRY_CODEC = RegistryFileCodec.create(PlasmidRegistryKeys.GAME_CONFIG, DIRECT_CODEC);
+    public static final Codec<HolderSet<GameConfig<?>>> ENTRY_LIST_CODEC = RegistryCodecs.homogeneousList(PlasmidRegistryKeys.GAME_CONFIG);
     /**
      * @deprecated Use {@link #ENTRY_CODEC} instead.
      */
     @Deprecated
-    public static final Codec<RegistryEntry<GameConfig<?>>> CODEC = ENTRY_CODEC;
+    public static final Codec<Holder<GameConfig<?>>> CODEC = ENTRY_CODEC;
 
-    public static GameOpenProcedure openProcedure(MinecraftServer server, RegistryEntry<GameConfig<?>> config) {
+    public static GameOpenProcedure openProcedure(MinecraftServer server, Holder<GameConfig<?>> config) {
         //noinspection unchecked,rawtypes
         var context = new GameOpenContext(server, config);
         //noinspection unchecked
@@ -73,23 +74,23 @@ public record GameConfig<C>(
     /**
      * @return the source location that this config was loaded from, if loaded from a file.
      */
-    public static String sourceName(RegistryEntry<GameConfig<?>> config) {
-        return config.getKey().map(e -> e.getValue().toString()).orElse("[unknown source]");
+    public static String sourceName(Holder<GameConfig<?>> config) {
+        return config.unwrapKey().map(e -> e.identifier().toString()).orElse("[unknown source]");
     }
 
     /**
      * @return the name for this game config, defaulted to the game type name if none is specified
      */
-    public static Text name(final RegistryEntry<GameConfig<?>> config) {
+    public static Component name(final Holder<GameConfig<?>> config) {
         var name = config.value().name;
         if (name != null) {
             return name;
         }
 
-        var translationKey = config.getKey().map(key -> Util.createTranslationKey("game", key.getValue()))
+        var translationKey = config.unwrapKey().map(key -> Util.makeDescriptionId("game", key.identifier()))
                 .filter(GameConfig::hasTranslationFor);
         if (translationKey.isPresent()) {
-            return Text.translatable(translationKey.get());
+            return Component.translatable(translationKey.get());
         }
 
         return config.value().type.name();
@@ -98,7 +99,7 @@ public record GameConfig<C>(
     /**
      * @return shortened version of the name, defaulted to standard name
      */
-    public static Text shortName(final RegistryEntry<GameConfig<?>> config) {
+    public static Component shortName(final Holder<GameConfig<?>> config) {
         if (config.value().shortName != null) {
             return config.value().shortName;
         }
@@ -109,7 +110,7 @@ public record GameConfig<C>(
      * @return provided description of game, defaults to empty list
      */
     @Override
-    public List<Text> description() {
+    public List<Component> description() {
         if (this.description != null) {
             return this.description;
         }
@@ -119,13 +120,12 @@ public record GameConfig<C>(
     /**
      * @return game configs icon, defaults to grass block
      */
-    @Override
     public ItemStack icon() {
-        if (this.icon != null) {
-            return this.icon;
+        if (this.iconTemplate != null) {
+            return this.iconTemplate.create();
         }
 
-        return Items.GRASS_BLOCK.getDefaultStack();
+        return Items.GRASS_BLOCK.getDefaultInstance();
     }
 
     private static boolean hasTranslationFor(String translationKey) {
@@ -142,7 +142,7 @@ public record GameConfig<C>(
                 metadata.name.orElse(null),
                 metadata.shortName.orElse(null),
                 metadata.description.orElse(null),
-                metadata.icon,
+                metadata.icon != null ? metadata.icon : new ItemStackTemplate(Items.GRASS_BLOCK),
                 metadata.custom,
                 config
         )));
@@ -150,21 +150,21 @@ public record GameConfig<C>(
 
     @Deprecated(forRemoval = true)
     public GameOpenProcedure openProcedure(MinecraftServer server) {
-        return openProcedure(server, RegistryEntry.of(this));
+        return openProcedure(server, Holder.direct(this));
     }
 
     private record Metadata(
-            Optional<Text> name,
-            Optional<Text> shortName,
-            Optional<List<Text>> description,
-            ItemStack icon,
+            Optional<Component> name,
+            Optional<Component> shortName,
+            Optional<List<Component>> description,
+            ItemStackTemplate icon,
             CustomValuesConfig custom
     ) {
         static final MapCodec<Metadata> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 PlasmidCodecs.TEXT.optionalFieldOf("name").forGetter(Metadata::name),
                 PlasmidCodecs.TEXT.optionalFieldOf("short_name").forGetter(Metadata::shortName),
                 MoreCodecs.listOrUnit(PlasmidCodecs.TEXT).optionalFieldOf("description").forGetter(Metadata::description),
-                MoreCodecs.ITEM_STACK.optionalFieldOf("icon", new ItemStack(Items.GRASS_BLOCK)).forGetter(Metadata::icon),
+                ItemStackTemplate.CODEC.optionalFieldOf("icon", new ItemStackTemplate(Items.GRASS_BLOCK)).forGetter(Metadata::icon),
                 CustomValuesConfig.CODEC.fieldOf("custom").orElseGet(CustomValuesConfig::empty).forGetter(Metadata::custom)
         ).apply(i, Metadata::new));
 
@@ -173,7 +173,7 @@ public record GameConfig<C>(
                     Optional.ofNullable(game.name),
                     Optional.ofNullable(game.shortName),
                     Optional.ofNullable(game.description),
-                    game.icon,
+                    game.iconTemplate != null ? game.iconTemplate : new ItemStackTemplate(Items.GRASS_BLOCK),
                     game.custom
             );
         }

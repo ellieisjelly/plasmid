@@ -2,11 +2,11 @@ package xyz.nucleoid.plasmid.api.map.template.processor;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.context.ContextParameterMap;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 import java.util.Map;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.context.ContextMap;
 
 /**
  * Template processor that replaces block entity NBT data in a {@link MapTemplate} based on a simple search and replace map.
@@ -24,10 +24,10 @@ public record ReplaceBlockEntitiesTemplateProcessor(Map<String, String> searchAn
     }
 
     @Override
-    public void processTemplate(MapTemplate template, ContextParameterMap.Builder parameters) {
+    public void processTemplate(MapTemplate template, ContextMap.Builder parameters) {
         template.getBounds().forEach(pos -> {
             var nbtCompound = template.getBlockEntityNbt(pos);
-            if (nbtCompound instanceof NbtCompound) {
+            if (nbtCompound instanceof CompoundTag) {
                 if (searchAndReplace(nbtCompound, false)) {
                     template.setBlockEntityNbt(pos, nbtCompound);
                 }
@@ -35,8 +35,8 @@ public record ReplaceBlockEntitiesTemplateProcessor(Map<String, String> searchAn
         });
     }
 
-    private boolean searchAndReplace(NbtCompound compound, boolean hasChanged) {
-        for (var key : compound.getKeys()) {
+    private boolean searchAndReplace(CompoundTag compound, boolean hasChanged) {
+        for (var key : compound.keySet()) {
             var stringValue = compound.getString(key);
             if (stringValue.isPresent()) {
                 var val = stringValue.get();
@@ -61,7 +61,7 @@ public record ReplaceBlockEntitiesTemplateProcessor(Map<String, String> searchAn
                 var list = listValue.get();
                 for (var i = 0; i < list.size(); i++) {
                     var item = list.get(i);
-                    if (item instanceof NbtCompound itemCompound) {
+                    if (item instanceof CompoundTag itemCompound) {
                         if (searchAndReplace(itemCompound, false)) {
                             list.set(i, itemCompound);
                             hasChanged = true;

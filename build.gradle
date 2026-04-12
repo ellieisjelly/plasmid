@@ -1,13 +1,12 @@
 plugins {
-  id 'fabric-loom' version "${loom_version}"
+  id 'net.fabricmc.fabric-loom' version "${loom_version}"
   id 'maven-publish'
   id "com.modrinth.minotaur" version "2.+"
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
-
-archivesBaseName = project.archives_base_name
+base {
+  archivesName = project.archives_base_name
+}
 group = project.maven_group
 
 sourceSets {
@@ -19,7 +18,7 @@ sourceSets {
 
 loom {
   runs {
-    testmodClient {
+    testclient {
       client()
       ideConfigGenerated project.rootProject == project
       name = "Test Mod Client"
@@ -82,63 +81,62 @@ loom {
 
 dependencies {
   minecraft "com.mojang:minecraft:${project.minecraft_version}"
-  mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-  modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+  implementation "net.fabricmc:fabric-loader:${project.loader_version}"
   testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 
-  modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+  api "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-  modApi include("xyz.nucleoid:server-translations-api:${project.server_translations_version}")  {
-    exclude(group: "net.fabricmc.fabric-api")
-  }
-  modApi include("xyz.nucleoid:packet-tweaker:${project.packet_tweaker_version}")
-  modApi include("xyz.nucleoid:fantasy:${project.fantasy_version}") {
-    exclude(group: "net.fabricmc.fabric-api")
-  }
-  modApi include("xyz.nucleoid:more-codecs:${project.more_codecs_version}") {
-    exclude(group: "net.fabricmc.fabric-api")
-  }
-  modApi include("xyz.nucleoid:stimuli:${project.stimuli_version}") {
-    exclude(group: "net.fabricmc.fabric-api")
-  }
-  modApi include("xyz.nucleoid:map-templates:${project.map_templates_version}") {
-    exclude(group: "net.fabricmc.fabric-api")
-  }
-  modApi include("xyz.nucleoid:substrate:${project.substrate_version}") {
-    exclude(group: "net.fabricmc.fabric-api")
-  }
-  modApi "eu.pb4:polymer-core:${project.polymer_version}"
-  modApi "eu.pb4:polymer-resource-pack:${project.polymer_version}"
-  modApi "eu.pb4:polymer-resource-pack-extras:${project.polymer_version}"
-  modApi "eu.pb4:polymer-blocks:${project.polymer_version}"
-  modApi "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
-  modApi include("eu.pb4:sgui:${project.sgui_version}")
-  modApi include("eu.pb4:sidebar-api:${project.sidebar_api_version}")
-  modApi include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
-  modApi include("eu.pb4:map-canvas-api:${project.map_canvas_api_version}")
-  modApi include("eu.pb4:player-data-api:${project.player_data_api_version}")
-  modApi include("eu.pb4:predicate-api:${project.predicate_api_version}") {
+  api include("xyz.nucleoid:server-translations-api:${project.server_translations_version}")  {
     exclude(group: "net.fabricmc.fabric-api")
   }
 
-
-  modImplementation include("me.lucko:fabric-permissions-api:${project.permission_api_version}") {
+  api include("xyz.nucleoid:fantasy:${project.fantasy_version}") {
+    exclude(group: "net.fabricmc.fabric-api")
+  }
+  api include("xyz.nucleoid:more-codecs:${project.more_codecs_version}") {
+    exclude(group: "net.fabricmc.fabric-api")
+  }
+  api include("xyz.nucleoid:stimuli:${project.stimuli_version}") {
+    exclude(group: "net.fabricmc.fabric-api")
+  }
+  api include("xyz.nucleoid:map-templates:${project.map_templates_version}") {
+    exclude(group: "net.fabricmc.fabric-api")
+  }
+  api include("xyz.nucleoid:substrate:${project.substrate_version}") {
+    exclude(group: "net.fabricmc.fabric-api")
+  }
+  api "eu.pb4:polymer-core:${project.polymer_version}"
+  api "eu.pb4:polymer-resource-pack:${project.polymer_version}"
+  api "eu.pb4:polymer-resource-pack-extras:${project.polymer_version}"
+  api "eu.pb4:polymer-blocks:${project.polymer_version}"
+  api "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
+  api include("eu.pb4:sgui:${project.sgui_version}")
+  api include("eu.pb4:sidebar-api:${project.sidebar_api_version}")
+  api include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
+  api include("eu.pb4:map-canvas-api:${project.map_canvas_api_version}")
+  api include("eu.pb4:player-data-api:${project.player_data_api_version}")
+  api include("eu.pb4:predicate-api:${project.predicate_api_version}") {
     exclude(group: "net.fabricmc.fabric-api")
   }
 
-  modCompileOnly('xyz.nucleoid:disguiselib-fabric:1.3.3') {
+
+  implementation include("me.lucko:fabric-permissions-api:${project.permission_api_version}") {
     exclude(group: "net.fabricmc.fabric-api")
   }
 
-  modCompileOnly('maven.modrinth:afkdisplay:1.1.0') {
+  /*compileOnly('xyz.nucleoid:disguiselib-fabric:1.3.3') {
     exclude(group: "net.fabricmc.fabric-api")
   }
 
-  modCompileOnly("eu.pb4:polymer-autohost:${project.polymer_version}") {
+  compileOnly('maven.modrinth:afkdisplay:1.1.0') {
+    exclude(group: "net.fabricmc.fabric-api")
+  }*/
+
+  compileOnly("eu.pb4:polymer-autohost:${project.polymer_version}") {
     exclude(group: "net.fabricmc.fabric-api")
   }
 
-  modCompileOnly("dev.emi:trinkets:3.10.0")  {
+  compileOnly("eu.pb4:trinkets:4.0.0-alpha.5+26.1")  {
     exclude(group: "net.fabricmc.fabric-api")
   }
 
@@ -161,16 +159,20 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
-  it.options.release = 21
+  it.options.release = 25
 }
+
 
 java {
   withSourcesJar()
+
+  sourceCompatibility = JavaVersion.VERSION_25
+  targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
   from("LICENSE") {
-    rename { "${it}_${project.archivesBaseName}"}
+    rename { "${it}_${project.archives_base_name}"}
   }
 }
 
@@ -190,7 +192,7 @@ if (System.getenv("MODRINTH")) {
       optional.project 'disguiselib'
       embedded.project 'placeholder-api'
     }
-    loaders = ["fabric", "quilt"]
+    loaders = ["fabric"]
   }
 
   remapJar {

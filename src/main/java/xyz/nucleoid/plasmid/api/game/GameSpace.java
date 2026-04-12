@@ -1,20 +1,20 @@
 package xyz.nucleoid.plasmid.api.game;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import xyz.nucleoid.fantasy.RuntimeWorldConfig;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.api.game.world.GameSpaceWorlds;
+import xyz.nucleoid.plasmid.api.game.world.GameSpaceLevels;
 
 import java.util.function.Consumer;
 
 /**
  * Represents an instance of a game, and the "space" within which it occurs.
  * <p>
- * The {@link GameSpace} controls all of its attached {@link ServerWorld} objects, all joined players, and all the
+ * The {@link GameSpace} controls all of its attached {@link ServerLevel} objects, all joined players, and all the
  * behavior that takes place within the game.
  * <p>
  * Behavior should be controlled by game implementations through the use of {@link GameActivity} instances.
@@ -72,22 +72,22 @@ public interface GameSpace extends GameAttachmentHolder {
     void close(GameCloseReason reason);
 
     /**
-     * Returns all {@link ServerPlayerEntity}s in this {@link GameSpace}.
+     * Returns all {@link ServerPlayer}s in this {@link GameSpace}.
      *
-     * <p>{@link GameSpacePlayers#contains(ServerPlayerEntity)} can be used to check if a {@link ServerPlayerEntity} is in this {@link GameSpace} instead.
+     * <p>{@link GameSpacePlayers#contains(ServerPlayer)} can be used to check if a {@link ServerPlayer} is in this {@link GameSpace} instead.
      *
-     * @return a {@link PlayerSet} that contains all {@link ServerPlayerEntity}s in this {@link GameSpace}
+     * @return a {@link PlayerSet} that contains all {@link ServerPlayer}s in this {@link GameSpace}
      */
     GameSpacePlayers getPlayers();
 
     /**
-     * Returns the manager for all attached {@link ServerWorld} instances to this {@link GameSpace}.
+     * Returns the manager for all attached {@link ServerLevel} instances to this {@link GameSpace}.
      * <p>
-     * {@link GameSpaceWorlds#add(RuntimeWorldConfig)} can be used to attach a {@link GameSpace}.
+     * {@link GameSpaceLevels#add(RuntimeLevelConfig)} can be used to attach a {@link GameSpace}.
      *
-     * @return the {@link ServerWorld} manager for this {@link GameSpace}
+     * @return the {@link ServerLevel} manager for this {@link GameSpace}
      */
-    GameSpaceWorlds getWorlds();
+    GameSpaceLevels getLevels();
 
     /**
      * @return the number of ticks that have passed since this {@link GameSpace} was created
