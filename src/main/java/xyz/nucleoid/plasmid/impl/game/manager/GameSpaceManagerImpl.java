@@ -143,11 +143,11 @@ public final class GameSpaceManagerImpl implements GameSpaceManager {
 
     @Override
     @Nullable
-    public ManagedGameSpace byLevel(Level world) {
+    public ManagedGameSpace byLevel(Level level) {
         if (this.server == null) {
             return null;
         }
-        return this.dimensionToGameSpace.get(world.dimension());
+        return this.dimensionToGameSpace.get(level.dimension());
     }
 
     @Override
@@ -160,11 +160,11 @@ public final class GameSpaceManagerImpl implements GameSpaceManager {
     }
 
     @Override
-    public boolean hasGame(Level world) {
+    public boolean hasGame(Level level) {
         if (this.server == null) {
             return false;
         }
-        return this.dimensionToGameSpace.containsKey(world.dimension());
+        return this.dimensionToGameSpace.containsKey(level.dimension());
     }
 
     @Override

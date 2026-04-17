@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Represents an agent which is responsible for bringing a player or group of players
- * into the {@link GameSpace} world in the correct location.
+ * into the {@link GameSpace} level in the correct location.
  * <p>
  * This object should be used in order to construct a {@link JoinAcceptorResult} object to return from a listener to the
  * {@link GamePlayerEvents#ACCEPT} event.
@@ -90,7 +90,7 @@ public interface JoinAcceptor {
      * The result of this function must be returned within a
      * {@link GamePlayerEvents#ACCEPT} listener.
      *
-     * @param world the world that all the players should be teleported to
+     * @param level the level that all the players should be teleported to
      * @param position the position that all the players should be teleported to
      * @param yaw the 'yaw' angle that all the players should be teleported to
      * @param pitch the 'pitch' angle that all the players should be teleported to
@@ -98,7 +98,7 @@ public interface JoinAcceptor {
      * @see JoinAcceptorResult.Teleport#thenRun(Consumer)
      * @see JoinAcceptorResult.Teleport#thenRunForEach(Consumer)
      */
-    JoinAcceptorResult.Teleport teleport(ServerLevel world, Vec3 position, float yaw, float pitch);
+    JoinAcceptorResult.Teleport teleport(ServerLevel level, Vec3 position, float yaw, float pitch);
 
     /**
      * Returns a result that completes this join by teleporting the players.
@@ -106,7 +106,7 @@ public interface JoinAcceptor {
      * The result of this function must be returned within a
      * {@link GamePlayerEvents#ACCEPT} listener.
      *
-     * @param world the world that all the players should be teleported to
+     * @param world the level that all the players should be teleported to
      * @param position the position that all the players should be teleported to
      * @return a "teleport" result
      * @see JoinAcceptorResult.Teleport#thenRun(Consumer)

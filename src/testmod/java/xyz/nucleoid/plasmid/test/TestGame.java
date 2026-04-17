@@ -40,11 +40,11 @@ import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.api.game.stats.GameStatisticBundle;
 import xyz.nucleoid.plasmid.api.game.stats.StatisticKey;
-import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
 import xyz.nucleoid.plasmid.api.map.MapLoadContexts;
 import xyz.nucleoid.plasmid.api.map.template.processor.TeamColorMapTemplateProcessor;
 import xyz.nucleoid.plasmid.api.util.ColoredBlocks;
-import xyz.nucleoid.plasmid.api.util.WoodType;
+import xyz.nucleoid.plasmid.api.util.WoodTypeContent;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
@@ -222,8 +222,8 @@ public final class TestGame {
         try {
             var mut = new BlockPos.MutableBlockPos();
             mut.setZ(16);
-            int y = 66 + WoodType.values().length;
-            for (var type : WoodType.values()) {
+            int y = 66 + WoodTypeContent.values().length;
+            for (var type : WoodTypeContent.values()) {
                 int x = 0;
                 mut.setY(y);
                 for (var field : WOOD_TYPE_BLOCK_FIELDS) {

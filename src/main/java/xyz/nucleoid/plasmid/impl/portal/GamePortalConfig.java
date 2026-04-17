@@ -15,17 +15,7 @@ public interface GamePortalConfig {
     /**
      * @deprecated Use {@link PlasmidRegistries#GAME_PORTAL_CONFIG} instead.
      */
-    @Deprecated
-    TinyRegistry<MapCodec<? extends GamePortalConfig>> REGISTRY = new TinyRegistry.Fake<>(PlasmidRegistries.GAME_PORTAL_CONFIG);
     Codec<GamePortalConfig> CODEC = PlasmidRegistries.GAME_PORTAL_CONFIG.byNameCodec().dispatchStable(GamePortalConfig::codec, Function.identity());
-
-    /**
-     * @deprecated Use {@link GamePortalConfigs#register(Identifier, MapCodec)} instead.
-     */
-    @Deprecated
-    static MapCodec<? extends GamePortalConfig> register(Identifier key, MapCodec<? extends GamePortalConfig> codec) {
-        return GamePortalConfigs.register(key, codec);
-    }
 
     GamePortalBackend createBackend(MinecraftServer server, Identifier id);
 

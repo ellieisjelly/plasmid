@@ -40,7 +40,8 @@ public record GameConfig<C>(
         C config
 ) {
     public static final Codec<GameConfig<?>> DIRECT_CODEC = PlasmidRegistries.GAME_TYPE.byNameCodec().dispatch(GameConfig::type, GameConfig::createTypedCodec);
-    @Deprecated
+
+    @Deprecated(forRemoval = true)
     public static final Codec<GameConfig<?>> REGISTRY_CODEC = Codec.lazyInitialized(() -> {
         if (!PlasmidConfig.get().ignoreInvalidGames()) {
             return DIRECT_CODEC;
@@ -58,11 +59,6 @@ public record GameConfig<C>(
     });
     public static final Codec<Holder<GameConfig<?>>> ENTRY_CODEC = RegistryFileCodec.create(PlasmidRegistryKeys.GAME_CONFIG, DIRECT_CODEC);
     public static final Codec<HolderSet<GameConfig<?>>> ENTRY_LIST_CODEC = RegistryCodecs.homogeneousList(PlasmidRegistryKeys.GAME_CONFIG);
-    /**
-     * @deprecated Use {@link #ENTRY_CODEC} instead.
-     */
-    @Deprecated
-    public static final Codec<Holder<GameConfig<?>>> CODEC = ENTRY_CODEC;
 
     public static GameOpenProcedure openProcedure(MinecraftServer server, Holder<GameConfig<?>> config) {
         //noinspection unchecked,rawtypes
@@ -146,11 +142,6 @@ public record GameConfig<C>(
                 metadata.custom,
                 config
         )));
-    }
-
-    @Deprecated(forRemoval = true)
-    public GameOpenProcedure openProcedure(MinecraftServer server) {
-        return openProcedure(server, Holder.direct(this));
     }
 
     private record Metadata(

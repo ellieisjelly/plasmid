@@ -1,4 +1,4 @@
-package xyz.nucleoid.plasmid.api.game.world.generator;
+package xyz.nucleoid.plasmid.api.game.level.generator;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;

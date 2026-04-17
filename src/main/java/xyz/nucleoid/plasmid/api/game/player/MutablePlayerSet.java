@@ -24,8 +24,8 @@ public final class MutablePlayerSet implements PlayerSet {
         this.playerGetter = server.getPlayerList()::getPlayer;
     }
 
-    public MutablePlayerSet(ServerLevel world) {
-        this.playerGetter = (uuid) -> world.getPlayerByUUID(uuid) instanceof ServerPlayer player ? player : null;
+    public MutablePlayerSet(ServerLevel level) {
+        this.playerGetter = (uuid) -> level.getPlayerByUUID(uuid) instanceof ServerPlayer player ? player : null;
     }
 
     public MutablePlayerSet(GameSpace gameSpace) {

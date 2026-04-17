@@ -9,7 +9,7 @@ import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
 import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
 import xyz.nucleoid.plasmid.api.game.player.JoinOfferResult;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
-import xyz.nucleoid.plasmid.api.game.GameTexts;
+import xyz.nucleoid.plasmid.api.game.GameComponents;
 import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 /**
@@ -118,7 +118,7 @@ public final class GamePlayerEvents {
             return offer.accept();
         } catch (Throwable throwable) {
             ctx.handleException(throwable);
-            return offer.reject(GameTexts.Join.unexpectedError());
+            return offer.reject(GameComponents.Join.unexpectedError());
         }
     });
 

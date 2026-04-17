@@ -9,7 +9,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-public enum WoodType {
+public enum WoodTypeContent {
     OAK(Type.REGULAR, Blocks.OAK_SAPLING, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.OAK_WOOD, Blocks.STRIPPED_OAK_LOG, Blocks.STRIPPED_OAK_WOOD, Blocks.OAK_PLANKS, Blocks.OAK_SLAB, Blocks.OAK_STAIRS, Blocks.OAK_FENCE, Blocks.OAK_FENCE_GATE, Blocks.OAK_DOOR, Blocks.OAK_SIGN, Blocks.OAK_WALL_SIGN, Blocks.OAK_HANGING_SIGN, Blocks.OAK_WALL_HANGING_SIGN, Blocks.OAK_BUTTON, Blocks.OAK_PRESSURE_PLATE, Items.OAK_BOAT, Items.OAK_CHEST_BOAT),
     SPRUCE(Type.REGULAR, Blocks.SPRUCE_SAPLING, Blocks.SPRUCE_LEAVES, Blocks.SPRUCE_LOG, Blocks.SPRUCE_WOOD, Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD, Blocks.SPRUCE_PLANKS, Blocks.SPRUCE_SLAB, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE_GATE, Blocks.SPRUCE_DOOR, Blocks.SPRUCE_SIGN, Blocks.SPRUCE_WALL_SIGN, Blocks.SPRUCE_HANGING_SIGN, Blocks.SPRUCE_WALL_HANGING_SIGN, Blocks.SPRUCE_BUTTON, Blocks.SPRUCE_PRESSURE_PLATE, Items.SPRUCE_BOAT, Items.SPRUCE_CHEST_BOAT),
     BIRCH(Type.REGULAR, Blocks.BIRCH_SAPLING, Blocks.BIRCH_LEAVES, Blocks.BIRCH_LOG, Blocks.BIRCH_WOOD, Blocks.STRIPPED_BIRCH_LOG, Blocks.STRIPPED_BIRCH_WOOD, Blocks.BIRCH_PLANKS, Blocks.BIRCH_SLAB, Blocks.BIRCH_STAIRS, Blocks.BIRCH_FENCE, Blocks.BIRCH_FENCE_GATE, Blocks.BIRCH_DOOR, Blocks.BIRCH_SIGN,  Blocks.BIRCH_WALL_SIGN, Blocks.BIRCH_HANGING_SIGN, Blocks.BIRCH_WALL_HANGING_SIGN, Blocks.BIRCH_BUTTON, Blocks.BIRCH_PRESSURE_PLATE, Items.BIRCH_BOAT, Items.BIRCH_CHEST_BOAT),
@@ -30,8 +30,8 @@ public enum WoodType {
     private final Type type;
     private final FeatureFlagSet requiredFeatures;
 
-    WoodType(Type type,  Block plant, Block leaves, Block log, Block wood, Block strippedLog, Block strippedWood, Block planks, Block slab, Block stairs,
-             Block fence, Block fenceGate, Block door, Block sign, Block wallSign, Block hangingSign, Block hangingWallSign, Block button, Block pressurePlate, Item boat, Item chestBoat, FeatureFlag... requiredFeatures) {
+    WoodTypeContent(Type type, Block plant, Block leaves, Block log, Block wood, Block strippedLog, Block strippedWood, Block planks, Block slab, Block stairs,
+                    Block fence, Block fenceGate, Block door, Block sign, Block wallSign, Block hangingSign, Block hangingWallSign, Block button, Block pressurePlate, Item boat, Item chestBoat, FeatureFlag... requiredFeatures) {
         this.type = type;
         this.plant = plant;
         this.leaves = leaves;
@@ -57,8 +57,8 @@ public enum WoodType {
         this.requiredFeatures = FeatureFlags.REGISTRY.subset(requiredFeatures);
     }
 
-    public static WoodType getType(Block block) {
-        for (var type : WoodType.values()) {
+    public static WoodTypeContent getType(Block block) {
+        for (var type : WoodTypeContent.values()) {
             if(type.contains(block)) {
                 return type;
             }
@@ -66,8 +66,8 @@ public enum WoodType {
         return null;
     }
 
-    public static WoodType getType(Item item) {
-        for (var type : WoodType.values()) {
+    public static WoodTypeContent getType(Item item) {
+        for (var type : WoodTypeContent.values()) {
             if(type.contains(item)) {
                 return type;
             }
@@ -98,11 +98,6 @@ public enum WoodType {
 
     public Type type() {
         return this.type;
-    }
-
-    @Deprecated
-    public Block getSapling() {
-        return this.plant;
     }
 
     public Block getPlant() {

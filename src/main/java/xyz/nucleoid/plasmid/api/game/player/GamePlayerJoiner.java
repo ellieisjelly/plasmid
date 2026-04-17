@@ -47,7 +47,7 @@ public final class GamePlayerJoiner {
         if (gameOpenException != null) {
             return gameOpenException.getReason().copy();
         } else {
-            return GameTexts.Join.unexpectedError();
+            return GameComponents.Join.unexpectedError();
         }
     }
 }

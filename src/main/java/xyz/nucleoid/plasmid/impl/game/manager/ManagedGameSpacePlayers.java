@@ -9,7 +9,7 @@ import xyz.nucleoid.plasmid.impl.player.isolation.IsolatingPlayerTeleporter;
 import xyz.nucleoid.plasmid.api.game.GameCloseReason;
 import xyz.nucleoid.plasmid.api.game.GameResult;
 import xyz.nucleoid.plasmid.api.game.GameSpacePlayers;
-import xyz.nucleoid.plasmid.api.game.GameTexts;
+import xyz.nucleoid.plasmid.api.game.GameComponents;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,7 +34,7 @@ public final class ManagedGameSpacePlayers implements GameSpacePlayers {
     @Override
     public GameResult simulateOffer(Collection<ServerPlayer> players, JoinIntent intent) {
         if (players.stream().anyMatch(this.set::contains)) {
-            return GameResult.error(GameTexts.Join.alreadyJoined());
+            return GameResult.error(GameComponents.Join.alreadyJoined());
         }
 
         var offer = new LocalJoinOffer(players, intent);
@@ -42,7 +42,7 @@ public final class ManagedGameSpacePlayers implements GameSpacePlayers {
         return switch (this.space.offerPlayers(offer)) {
             case JoinOfferResult.Accept accept -> GameResult.ok();
             case JoinOfferResult.Reject reject -> GameResult.error(reject.reason());
-            default -> GameResult.error(GameTexts.Join.genericError());
+            default -> GameResult.error(GameComponents.Join.genericError());
         };
     }
 
@@ -59,7 +59,7 @@ public final class ManagedGameSpacePlayers implements GameSpacePlayers {
 
     private GameResult attemptOffer(Collection<ServerPlayer> players, JoinIntent intent) {
         if (players.stream().anyMatch(this.set::contains)) {
-            return GameResult.error(GameTexts.Join.alreadyJoined());
+            return GameResult.error(GameComponents.Join.alreadyJoined());
         }
 
         var offer = new LocalJoinOffer(players, intent);
@@ -67,7 +67,7 @@ public final class ManagedGameSpacePlayers implements GameSpacePlayers {
         return switch (this.space.offerPlayers(offer)) {
             case JoinOfferResult.Accept accept -> this.accept(players, intent);
             case JoinOfferResult.Reject reject -> GameResult.error(reject.reason());
-            default -> GameResult.error(GameTexts.Join.genericError());
+            default -> GameResult.error(GameComponents.Join.genericError());
         };
     }
 
@@ -90,7 +90,7 @@ public final class ManagedGameSpacePlayers implements GameSpacePlayers {
                     return GameResult.ok();
                 } catch (Throwable throwable) {
                     this.space.getLifecycle().onError(this.space, throwable, "handling LocalJoinAcceptor.Teleport");
-                    return GameResult.error(GameTexts.Join.unexpectedError());
+                    return GameResult.error(GameComponents.Join.unexpectedError());
                 }
             }
             default -> throw new IllegalStateException("Accept event must be handled");

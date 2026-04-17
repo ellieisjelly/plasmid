@@ -15,7 +15,7 @@ import xyz.nucleoid.plasmid.api.game.config.GameConfig;
  * <p>
  * This provides a common path for Plasmid and game implementations to share common messages.
  */
-public final class GameTexts {
+public final class GameComponents {
     public static MutableComponent commandLink(String text, String command) {
         return Component.literal(text).setStyle(commandLinkStyle(command));
     }
@@ -40,21 +40,21 @@ public final class GameTexts {
             var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
             return Component.translatable("text.plasmid.game.open.opened", source.getDisplayName(), gameName)
-                    .append(GameTexts.Join.link(gameSpace));
+                    .append(GameComponents.Join.link(gameSpace));
         }
 
         public static MutableComponent gameOpenedTesting(CommandSourceStack source, GameSpace gameSpace) {
             var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
             return Component.translatable("text.plasmid.game.open.opened.testing", source.getDisplayName(), gameName)
-                    .append(GameTexts.Join.link(gameSpace));
+                    .append(GameComponents.Join.link(gameSpace));
         }
 
         public static MutableComponent propose(CommandSourceStack source, GameSpace gameSpace) {
             var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
             return Component.translatable("text.plasmid.game.propose", source.getDisplayName(), gameName)
-                    .append(GameTexts.Join.link(gameSpace));
+                    .append(GameComponents.Join.link(gameSpace));
         }
 
         public static MutableComponent gameOpenError() {
@@ -67,7 +67,7 @@ public final class GameTexts {
             var gameName = GameConfig.name(gameSpace.getMetadata().sourceConfig()).copy().withStyle(ChatFormatting.GRAY);
 
             return Component.translatable("text.plasmid.game.locate.located", player.getDisplayName(), gameName)
-                    .append(GameTexts.Join.link(gameSpace));
+                    .append(GameComponents.Join.link(gameSpace));
         }
 
         public static MutableComponent gameList() {

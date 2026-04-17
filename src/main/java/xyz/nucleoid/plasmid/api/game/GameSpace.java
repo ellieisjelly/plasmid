@@ -7,7 +7,7 @@ import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.api.game.world.GameSpaceLevels;
+import xyz.nucleoid.plasmid.api.game.level.GameSpaceLevels;
 
 import java.util.function.Consumer;
 

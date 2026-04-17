@@ -78,7 +78,7 @@ public final class ManagedGameSpace implements GameSpace {
     @Override
     public GameResult requestStart() {
         if (this.closed) {
-            return GameResult.error(GameTexts.Start.alreadyStarted());
+            return GameResult.error(GameComponents.Start.alreadyStarted());
         }
 
         var startResult = GameEvents.START_REQUEST.invoker().onRequestStart(this, null);
@@ -90,7 +90,7 @@ public final class ManagedGameSpace implements GameSpace {
         if (startResult != null) {
             return startResult;
         } else {
-            return GameResult.error(GameTexts.Start.genericError());
+            return GameResult.error(GameComponents.Start.genericError());
         }
     }
 
@@ -202,11 +202,11 @@ public final class ManagedGameSpace implements GameSpace {
 
     JoinOfferResult offerPlayers(LocalJoinOffer offer) {
         if (this.closed) {
-            return offer.reject(GameTexts.Join.gameClosed());
+            return offer.reject(GameComponents.Join.gameClosed());
         } else if (offer.serverPlayers().stream().anyMatch(this.manager::inGame)) {
-            return offer.reject(GameTexts.Join.inOtherGame());
+            return offer.reject(GameComponents.Join.inOtherGame());
         } else if (offer.serverPlayers().stream().anyMatch(p -> !Permissions.check(p, "plasmid.join_game", true))) {
-            return offer.reject(GameTexts.Join.notAllowed());
+            return offer.reject(GameComponents.Join.notAllowed());
         }
 
         return this.state.invoker(GamePlayerEvents.OFFER).onOfferPlayers(offer);
@@ -226,7 +226,7 @@ public final class ManagedGameSpace implements GameSpace {
         this.lifecycle.onAddPlayer(this, player);
 
         var spectator = this.players.spectators().contains(player);
-        Component joinMessage = (spectator ? GameTexts.Join.successSpectator(player) : GameTexts.Join.success(player)).withStyle(ChatFormatting.YELLOW);
+        Component joinMessage = (spectator ? GameComponents.Join.successSpectator(player) : GameComponents.Join.success(player)).withStyle(ChatFormatting.YELLOW);
         joinMessage = this.state.invoker(GamePlayerEvents.JOIN_MESSAGE).onJoinMessageCreation(player, joinMessage, joinMessage);
         GameEvents.PLAYER_JOIN.invoker().onPlayerJoin(this, player);
 
@@ -237,7 +237,7 @@ public final class ManagedGameSpace implements GameSpace {
 
     void onPlayerRemove(ServerPlayer player) {
         var spectator = this.players.spectators().contains(player);
-        Component leaveMessage = (spectator ? GameTexts.Leave.spectator(player) : GameTexts.Leave.participant(player)).withStyle(ChatFormatting.YELLOW);
+        Component leaveMessage = (spectator ? GameComponents.Leave.spectator(player) : GameComponents.Leave.participant(player)).withStyle(ChatFormatting.YELLOW);
         leaveMessage = this.state.invoker(GamePlayerEvents.LEAVE_MESSAGE).onLeaveMessageCreation(player, leaveMessage, leaveMessage);
 
         this.state.invoker(GamePlayerEvents.LEAVE).onRemovePlayer(player);

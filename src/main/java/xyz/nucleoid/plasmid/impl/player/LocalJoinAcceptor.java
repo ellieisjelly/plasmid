@@ -9,7 +9,6 @@ import xyz.nucleoid.plasmid.api.util.PlayerPos;
 
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.server.level.ServerLevel;
@@ -62,8 +61,8 @@ public record LocalJoinAcceptor(Collection<ServerPlayer> serverPlayers, JoinInte
     }
 
     @Override
-    public JoinAcceptorResult.Teleport teleport(ServerLevel world, Vec3 position, float yaw, float pitch) {
-        var playerPos = new PlayerPos(world, position, yaw, pitch);
+    public JoinAcceptorResult.Teleport teleport(ServerLevel level, Vec3 position, float yaw, float pitch) {
+        var playerPos = new PlayerPos(level, position, yaw, pitch);
         return new LocalJoinAcceptor.Teleport(
                 this.serverPlayers.stream().collect(Collectors.toMap(
                         ServerPlayer::getUUID,

@@ -105,12 +105,9 @@ public final class GameResourcePack {
             var relative = identifier.getNamespace() + "/" + identifier.getPath() + ".zip";
             var path = RESOURCE_PACKS_ROOT.resolve(relative);
             Files.createDirectories(path.getParent());
-            creator.build(path);
-
-            var hash = com.google.common.io.Files.asByteSource(path.toFile()).hash(Hashing.sha1()).toString();
-
+            var res = creator.build(path);
             var url = PlasmidWebServer.registerResourcePack(relative, path);
-            return Optional.of(new GameResourcePack(UUID.nameUUIDFromBytes(hash.getBytes(StandardCharsets.UTF_8)), url, hash, null));
+            return Optional.of(new GameResourcePack(UUID.nameUUIDFromBytes(res.hash().getBytes(StandardCharsets.UTF_8)), url, res.hash(), null));
         } catch (Throwable e) {
             Plasmid.LOGGER.error("Failed to create a resource pack '" + identifier + "'!", e);
             return Optional.empty();

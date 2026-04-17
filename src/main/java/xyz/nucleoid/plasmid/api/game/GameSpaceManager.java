@@ -4,7 +4,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
 import xyz.nucleoid.plasmid.impl.game.manager.GameSpaceManagerImpl;
-import xyz.nucleoid.plasmid.impl.game.manager.ManagedGameSpace;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -31,12 +30,12 @@ public interface GameSpaceManager {
     GameSpace byUserId(Identifier userId);
 
     @Nullable
-    GameSpace byLevel(Level world);
+    GameSpace byLevel(Level level);
 
     @Nullable
     GameSpace byPlayer(Player player);
 
-    boolean hasGame(Level world);
+    boolean hasGame(Level level);
 
     boolean inGame(Player player);
 }

@@ -13,24 +13,10 @@ import java.util.function.Function;
 import net.minecraft.resources.Identifier;
 
 public interface MenuEntryConfig {
-    /**
-     * @deprecated Use {@link PlasmidRegistries#MENU_ENTRY} instead.
-     */
-    @Deprecated
-    TinyRegistry<MapCodec<? extends MenuEntryConfig>> REGISTRY = new TinyRegistry.Fake<>(PlasmidRegistries.MENU_ENTRY);
-
     Codec<MenuEntryConfig> CODEC_OBJECT = PlasmidRegistries.MENU_ENTRY.byNameCodec().dispatchStable(MenuEntryConfig::codec, Function.identity());
     Codec<MenuEntryConfig> CODEC = Codec.either(GameConfig.ENTRY_CODEC, CODEC_OBJECT).xmap(either -> {
         return either.map((game) -> new GameMenuEntryConfig(game, Optional.empty(), Optional.empty(), Optional.empty()), Function.identity());
     }, Either::right);
-
-    /**
-     * @deprecated Use {@link MenuEntryConfigs#register(Identifier, MapCodec)} instead.
-     */
-    @Deprecated
-    static MapCodec<? extends MenuEntryConfig> register(Identifier key, MapCodec<? extends MenuEntryConfig> codec) {
-        return MenuEntryConfigs.register(key, codec);
-    }
 
     MenuEntry createEntry();
 

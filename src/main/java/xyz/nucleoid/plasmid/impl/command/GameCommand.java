@@ -26,7 +26,7 @@ import xyz.nucleoid.plasmid.impl.command.ui.GameJoinUi;
 import xyz.nucleoid.plasmid.api.game.GameCloseReason;
 import xyz.nucleoid.plasmid.api.game.GameOpenException;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
-import xyz.nucleoid.plasmid.api.game.GameTexts;
+import xyz.nucleoid.plasmid.api.game.GameComponents;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
 import xyz.nucleoid.plasmid.impl.game.manager.GameSpaceManagerImpl;
 import xyz.nucleoid.plasmid.api.game.player.GamePlayerJoiner;
@@ -191,7 +191,7 @@ public final class GameCommand {
     private static void onOpenSuccess(CommandSourceStack source, GameSpace gameSpace, ServerPlayer player, boolean test) {
         var players = source.getServer().getPlayerList();
 
-        var message = test ? GameTexts.Broadcast.gameOpenedTesting(source, gameSpace) : GameTexts.Broadcast.gameOpened(source, gameSpace);
+        var message = test ? GameComponents.Broadcast.gameOpenedTesting(source, gameSpace) : GameComponents.Broadcast.gameOpened(source, gameSpace);
         players.broadcastSystemMessage(message, false);
 
         if (test) {
@@ -217,7 +217,7 @@ public final class GameCommand {
         if (gameOpenException != null) {
             message = gameOpenException.getReason().copy();
         } else {
-            message = GameTexts.Broadcast.gameOpenError();
+            message = GameComponents.Broadcast.gameOpenError();
         }
 
         var players = source.getServer().getPlayerList();
@@ -241,7 +241,7 @@ public final class GameCommand {
     }
 
     private static int proposeGame(CommandSourceStack source, GameSpace gameSpace) {
-        var message = GameTexts.Broadcast.propose(source, gameSpace);
+        var message = GameComponents.Broadcast.propose(source, gameSpace);
 
         var playerManager = source.getServer().getPlayerList();
         playerManager.broadcastSystemMessage(message, false);
@@ -320,7 +320,7 @@ public final class GameCommand {
             throw PLAYER_NOT_IN_GAME.create(player.getName());
         }
 
-        context.getSource().sendSuccess(() -> GameTexts.Command.located(player, gameSpace), false);
+        context.getSource().sendSuccess(() -> GameComponents.Command.located(player, gameSpace), false);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -353,7 +353,7 @@ public final class GameCommand {
 
         Component message;
         if (startResult.isOk()) {
-            message = GameTexts.Start.startedBy(source).withStyle(ChatFormatting.GRAY);
+            message = GameComponents.Start.startedBy(source).withStyle(ChatFormatting.GRAY);
         } else {
             message = startResult.errorCopy().withStyle(ChatFormatting.RED);
         }
@@ -376,7 +376,7 @@ public final class GameCommand {
             stopGameConfirmed(context);
         } else {
             source.sendSuccess(
-                    () -> GameTexts.Stop.confirmStop().withStyle(ChatFormatting.GOLD),
+                    () -> GameComponents.Stop.confirmStop().withStyle(ChatFormatting.GOLD),
                     false
             );
         }
@@ -396,12 +396,12 @@ public final class GameCommand {
         try {
             gameSpace.close(GameCloseReason.CANCELED);
 
-            var message = GameTexts.Stop.stoppedBy(source);
+            var message = GameComponents.Stop.stoppedBy(source);
             playerSet.sendMessage(message.withStyle(ChatFormatting.GRAY));
         } catch (Throwable throwable) {
             Plasmid.LOGGER.error("Failed to stop game", throwable);
 
-            playerSet.sendMessage(GameTexts.Stop.genericError().withStyle(ChatFormatting.RED));
+            playerSet.sendMessage(GameComponents.Stop.genericError().withStyle(ChatFormatting.RED));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -410,7 +410,7 @@ public final class GameCommand {
     private static int listGames(CommandContext<CommandSourceStack> context) {
         var registry = context.getSource().registryAccess().lookupOrThrow(PlasmidRegistryKeys.GAME_CONFIG);
         var source = context.getSource();
-        source.sendSuccess(() -> GameTexts.Command.gameList().withStyle(ChatFormatting.BOLD), false);
+        source.sendSuccess(() -> GameComponents.Command.gameList().withStyle(ChatFormatting.BOLD), false);
 
         registry.listElements().forEach(game -> {
             var id = game.key().identifier();
@@ -418,9 +418,9 @@ public final class GameCommand {
                 String command = "/game open " + id;
 
                 var link = GameConfig.name(game).copy()
-                        .setStyle(GameTexts.commandLinkStyle(command));
+                        .setStyle(GameComponents.commandLinkStyle(command));
 
-                return GameTexts.Command.listEntry(link);
+                return GameComponents.Command.listEntry(link);
             }, false);
         });
 
@@ -438,7 +438,7 @@ public final class GameCommand {
         for (var target : targets) {
             var gameSpace = GameSpaceManagerImpl.get().byPlayer(target);
             if (gameSpace != null) {
-                var message = GameTexts.Kick.kick(source, target).withStyle(ChatFormatting.GRAY);
+                var message = GameComponents.Kick.kick(source, target).withStyle(ChatFormatting.GRAY);
                 playerManager.broadcastSystemMessage(message, false);
 
                 Scheduler.INSTANCE.submit(server -> {

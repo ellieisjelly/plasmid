@@ -7,7 +7,7 @@ import xyz.nucleoid.fantasy.Fantasy;
 import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.fantasy.RuntimeLevelHandle;
 import xyz.nucleoid.fantasy.util.GameRuleStore;
-import xyz.nucleoid.plasmid.api.game.world.GameSpaceLevels;
+import xyz.nucleoid.plasmid.api.game.level.GameSpaceLevels;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -29,10 +29,10 @@ public final class ManagedGameSpaceLevels implements GameSpaceLevels {
     }
 
     @Override
-    public ServerLevel add(RuntimeLevelConfig worldConfig) {
-        applyDefaultsTo(worldConfig);
+    public ServerLevel add(RuntimeLevelConfig levelConfig) {
+        applyDefaultsTo(levelConfig);
 
-        var worldHandle = Fantasy.get(this.space.getServer()).openTemporaryLevel(worldConfig);
+        var worldHandle = Fantasy.get(this.space.getServer()).openTemporaryLevel(levelConfig);
         this.worlds.put(worldHandle.asLevel().dimension(), worldHandle);
 
         this.space.onAddLevel(worldHandle);
@@ -57,8 +57,8 @@ public final class ManagedGameSpaceLevels implements GameSpaceLevels {
     }
 
     @Override
-    public boolean remove(ServerLevel world) {
-        var dimension = world.dimension();
+    public boolean remove(ServerLevel level) {
+        var dimension = level.dimension();
         var worldHandle = this.worlds.remove(dimension);
         if (worldHandle != null) {
             this.space.onRemoveLevel(dimension);

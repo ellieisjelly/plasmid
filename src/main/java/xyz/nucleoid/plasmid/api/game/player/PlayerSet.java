@@ -29,8 +29,8 @@ public interface PlayerSet extends PlayerIterable {
         return new ServerPlayerSet(server.getPlayerList());
     }
 
-    static PlayerSet ofLevel(ServerLevel world) {
-        return new ServerLevelPlayerSet(world);
+    static PlayerSet ofLevel(ServerLevel level) {
+        return new ServerLevelPlayerSet(level);
     }
 
     /**

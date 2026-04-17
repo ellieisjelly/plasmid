@@ -2,7 +2,6 @@ package xyz.nucleoid.plasmid.api.game.common;
 
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.sgui.api.SguiUtils;
-import eu.pb4.sgui.api.gui.GuiLike;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.api.game.*;
 import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
@@ -255,7 +254,7 @@ public final class GameWaitingLobby {
     @Nullable
     private GameResult requestStart() {
         if (this.gameSpace.getPlayers().participants().size() < this.playerConfig.minPlayers()) {
-            return GameResult.error(GameTexts.Start.notEnoughPlayers());
+            return GameResult.error(GameComponents.Start.notEnoughPlayers());
         }
 
         if (!this.started) {

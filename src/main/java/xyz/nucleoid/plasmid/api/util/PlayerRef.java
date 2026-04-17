@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
@@ -18,6 +19,10 @@ public record PlayerRef(UUID id) {
 
     public static PlayerRef of(GameProfile profile) {
         return new PlayerRef(profile.id());
+    }
+
+    public static PlayerRef of(NameAndId nameAndId) {
+        return new PlayerRef(nameAndId.id());
     }
 
     public static PlayerRef ofUnchecked(UUID id) {

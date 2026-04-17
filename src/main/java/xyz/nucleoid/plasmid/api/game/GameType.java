@@ -22,12 +22,6 @@ import java.util.function.Consumer;
  * @see GameConfig
  */
 public final class GameType<C> {
-    /**
-     * @deprecated Use {@link PlasmidRegistries#GAME_TYPE} instead.
-     */
-    @Deprecated
-    public static final TinyRegistry<GameType<?>> REGISTRY = new TinyRegistry.Fake(PlasmidRegistries.GAME_TYPE);
-
     private final Identifier id;
     private final MapCodec<C> configCodec;
     private final Open<C> open;
@@ -36,24 +30,6 @@ public final class GameType<C> {
         this.id = id;
         this.configCodec = configCodec;
         this.open = open;
-    }
-
-    /**
-     * Registers a new {@link GameType} with the given id, codec to parse a config, and function to set up the game.
-     *
-     * @param identifier a unique identifier to register this game type with
-     * @param configCodec a {@link MapCodec} that can deserialize
-     * @param open a function that describes how the game should be set up, given a configuration
-     * @param <C> the type of config that should be loadedS
-     * @return the registered {@link GameType} instance
-     * @see MapCodec
-     * @see com.mojang.serialization.codecs.RecordCodecBuilder
-     *
-     * @deprecated Use {@link GameTypes#register(Identifier, MapCodec, Open)} instead.
-     */
-    @Deprecated
-    public static <C> GameType<C> register(Identifier identifier, MapCodec<C> configCodec, Open<C> open) {
-        return GameTypes.register(identifier, configCodec, open);
     }
 
     public GameOpenProcedure open(GameOpenContext<C> context) {
