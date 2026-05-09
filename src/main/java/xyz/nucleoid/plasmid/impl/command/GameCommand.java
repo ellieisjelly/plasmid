@@ -19,6 +19,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import xyz.nucleoid.plasmid.api.registry.PlasmidRegistryKeys;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.plasmid.impl.command.argument.GameConfigArgument;
 import xyz.nucleoid.plasmid.impl.command.argument.GameSpaceArgument;
@@ -192,9 +193,8 @@ public final class GameCommand {
         var players = source.getServer().getPlayerList();
 
         var message = test ? GameComponents.Broadcast.gameOpenedTesting(source, gameSpace) : GameComponents.Broadcast.gameOpened(source, gameSpace);
-        players.broadcastSystemMessage(message, false);
-
         if (test) {
+            players.broadcastSystemMessage(message, false);
             joinAllPlayersToGame(source, gameSpace);
 
             var startResult = gameSpace.requestStart();
@@ -205,6 +205,11 @@ public final class GameCommand {
             }
         } else if (player != null) {
             tryJoinGame(player, gameSpace, JoinIntent.PLAY);
+            // only send messages to players in whitelist if its active, otherwise send to all
+            players.getPlayers().stream().
+                    filter((plr -> gameSpace.getWhitelist().isEmpty()
+                            || gameSpace.isPlayerInWhitelist(PlayerRef.of(plr))))
+                    .forEach((plr -> plr.sendSystemMessage(message, false)));
         }
     }
 

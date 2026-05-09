@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.game.manager.GameSpaceManagerImpl;
 
 public final class GameSpaceArgument {
@@ -22,7 +23,9 @@ public final class GameSpaceArgument {
                     var gameSpaceManager = GameSpaceManagerImpl.get();
 
                     return SharedSuggestionProvider.suggestResource(
-                            gameSpaceManager.getOpenGameSpaces().stream().map(space -> space.getMetadata().userId()),
+                            gameSpaceManager.getOpenGameSpaces().stream()
+                                    .filter((space -> space.getWhitelist().isEmpty() || space.isPlayerInWhitelist(PlayerRef.of(context.getSource().getPlayer()))))
+                                    .map(space -> space.getMetadata().userId()),
                             builder
                     );
                 });
