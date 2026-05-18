@@ -37,18 +37,16 @@ public final class GamePlayerJoiner {
     }
 
     private static GameResult tryJoinAll(Collection<ServerPlayer> players, GameSpace gameSpace, JoinIntent intent) {
-        boolean playersInWhitelist = true;
-        if (!gameSpace.getWhitelist().isEmpty()) {
-            for (ServerPlayer player : players) {
-                if (!gameSpace.isPlayerInWhitelist(PlayerRef.of(player))) {
-                    playersInWhitelist = false;
-                    break;
-                }
+        boolean playersAreAllowed = true;
+        for (ServerPlayer player : players) {
+            if (!gameSpace.isPlayerAllowed(PlayerRef.of(player))) {
+                playersAreAllowed = false;
+                break;
             }
         }
 
-        if (!playersInWhitelist) {
-            return GameResult.error(Component.translatable("text.plasmid.game.join.party.error.private"));
+        if (!playersAreAllowed) {
+            return GameResult.error(Component.translatable("text.plasmid.game.join.party.error.not_allowed"));
         }
         return gameSpace.getPlayers().offer(players, intent);
     }

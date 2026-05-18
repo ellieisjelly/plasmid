@@ -12,6 +12,7 @@ import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Represents an instance of a game, and the "space" within which it occurs.
@@ -83,29 +84,24 @@ public interface GameSpace extends GameAttachmentHolder {
     GameSpacePlayers getPlayers();
 
     /**
-     * Returns all {@link ServerPlayer}s in this {@link GameSpace}'s whitelist.
-     * @return a {@link ArrayList<PlayerRef>} that contains all {@link ServerPlayer}s in the {@link GameSpace} whitelist
+     * Gets all player filters in this {@link GameSpace}.
+     * @return An {@link ArrayList<Predicate<PlayerRef>>} containing all player filters.
      */
-    ArrayList<PlayerRef> getWhitelist();
+    ArrayList<Predicate<PlayerRef>> getPlayerFilters();
 
     /**
-     * Returns if the {@link PlayerRef} is in this {@link GameSpace}'s whitelist.
-     * @param playerRef The player to check
-     * @return true if the player is in the whitelist, false otherwise
+     * Adds a player filter that gets applied whenever a player joins this {@link GameSpace}.
+     * Applied before any game activity specific filtering.
+     * @param filter A predicate with a single {@link PlayerRef} argument that returns true if the player is allowed or false otherwise.
      */
-    boolean isPlayerInWhitelist(PlayerRef playerRef);
+    void addPlayerFilter(Predicate<PlayerRef> filter);
 
     /**
-     * Adds a {@link PlayerRef} to the whitelist
-     * @param playerRef The player to add to the whitelist
+     * Tests if the player is allowed to join based on the applied player filters
+     * @param player The {@link PlayerRef} to test for
+     * @return true if the player is allowed, false otherwise.
      */
-    void addPlayerToWhitelist(PlayerRef playerRef);
-
-    /**
-     * Removes the {@link PlayerRef} from the whitelist
-     * @param playerRef The player to remove from the whitelist
-     */
-    void removePlayerFromWhitelist(PlayerRef playerRef);
+    boolean isPlayerAllowed(PlayerRef player);
 
     /**
      * Returns the manager for all attached {@link ServerLevel} instances to this {@link GameSpace}.

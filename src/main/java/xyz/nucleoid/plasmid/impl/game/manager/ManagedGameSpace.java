@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.fantasy.RuntimeLevelHandle;
@@ -27,6 +28,7 @@ import xyz.nucleoid.plasmid.api.event.GameEvents;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public final class ManagedGameSpace implements GameSpace {
     private final MinecraftServer server;
@@ -37,8 +39,7 @@ public final class ManagedGameSpace implements GameSpace {
     private final ManagedGameSpacePlayers players;
     private final ManagedGameSpaceLevels worlds;
 
-    private final ArrayList<PlayerRef> whitelistedPlayers = new ArrayList<>();
-
+    private final ArrayList<Predicate<PlayerRef>> playerFilters = new ArrayList<>();
     private final GameLifecycle lifecycle = new GameLifecycle();
 
     private final long openTime;
@@ -150,16 +151,26 @@ public final class ManagedGameSpace implements GameSpace {
     }
 
     @Override
-    public ArrayList<PlayerRef> getWhitelist() { return this.whitelistedPlayers; }
+    public ArrayList<Predicate<PlayerRef>> getPlayerFilters() {
+        return this.playerFilters;
+    }
 
     @Override
-    public boolean isPlayerInWhitelist(PlayerRef playerRef) { return this.whitelistedPlayers.contains(playerRef); }
+    public void addPlayerFilter(Predicate<PlayerRef> filter) {
+        this.playerFilters.add(filter);
+    }
 
     @Override
-    public void addPlayerToWhitelist(PlayerRef playerRef) { this.whitelistedPlayers.add(playerRef); }
-
-    @Override
-    public void removePlayerFromWhitelist(PlayerRef playerRef) { this.whitelistedPlayers.remove(playerRef); }
+    public boolean isPlayerAllowed(PlayerRef player) {
+        boolean isAllowed = true;
+        for (Predicate<PlayerRef> playerFilter : this.playerFilters) {
+            if (!playerFilter.test(player)) {
+                isAllowed = false;
+                break;
+            }
+        }
+        return isAllowed;
+    }
 
     @Override
     public ManagedGameSpaceLevels getLevels() {

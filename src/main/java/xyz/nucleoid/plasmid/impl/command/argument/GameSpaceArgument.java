@@ -24,7 +24,7 @@ public final class GameSpaceArgument {
 
                     return SharedSuggestionProvider.suggestResource(
                             gameSpaceManager.getOpenGameSpaces().stream()
-                                    .filter((space -> space.getWhitelist().isEmpty() || space.isPlayerInWhitelist(PlayerRef.of(context.getSource().getPlayer()))))
+                                    .filter((space -> space.isPlayerAllowed(PlayerRef.of(context.getSource().getPlayer()))))
                                     .map(space -> space.getMetadata().userId()),
                             builder
                     );

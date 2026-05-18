@@ -65,7 +65,7 @@ public class GameJoinUi extends SimpleGui {
         int gameI = 0;
 
         var games = new ArrayList<>(GameSpaceManagerImpl.get().getOpenGameSpaces());
-        games.removeIf((gameSpace -> !gameSpace.getWhitelist().isEmpty() && !gameSpace.isPlayerInWhitelist(PlayerRef.of(this.player))));
+        games.removeIf((gameSpace -> !gameSpace.isPlayerAllowed(PlayerRef.of(this.player))));
         games.sort(Comparator.comparingInt(space -> -space.getPlayers().size()));
 
         int limit = this.size;

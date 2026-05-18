@@ -437,17 +437,6 @@ public final class GameWaitingLobby {
             return true;
         }
 
-        // if the game is private and all players are in the whitelist
-        if (!this.gameSpace.getWhitelist().isEmpty()) {
-            ArrayList<PlayerRef> remainingPlayers = new ArrayList<>(this.gameSpace.getWhitelist());
-            for (ServerPlayer player : this.gameSpace.getPlayers()) {
-                remainingPlayers.remove(PlayerRef.of(player));
-            }
-            if (remainingPlayers.isEmpty()) {
-                return true;
-            }
-        }
-
         // if there are no players outside of a game on the server
         for (var world : server.getAllLevels()) {
             if (hasActivePlayer(world) && !GameSpaceManagerImpl.get().hasGame(world)) {

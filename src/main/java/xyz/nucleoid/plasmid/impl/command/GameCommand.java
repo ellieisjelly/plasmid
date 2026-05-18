@@ -205,10 +205,9 @@ public final class GameCommand {
             }
         } else if (player != null) {
             tryJoinGame(player, gameSpace, JoinIntent.PLAY);
-            // only send messages to players in whitelist if its active, otherwise send to all
+            // only send messages to players that are allowed to join
             players.getPlayers().stream().
-                    filter((plr -> gameSpace.getWhitelist().isEmpty()
-                            || gameSpace.isPlayerInWhitelist(PlayerRef.of(plr))))
+                    filter((plr) -> gameSpace.isPlayerAllowed(PlayerRef.of(plr)))
                     .forEach((plr -> plr.sendSystemMessage(message, false)));
         }
     }
