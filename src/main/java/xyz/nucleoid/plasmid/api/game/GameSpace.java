@@ -10,7 +10,8 @@ import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.api.game.level.GameSpaceLevels;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -85,17 +86,22 @@ public interface GameSpace extends GameAttachmentHolder {
 
     /**
      * Gets all player filters in this {@link GameSpace}.
-     * @return An {@link ArrayList<Predicate<PlayerRef>>} containing all player filters.
+     * @return A {@link Map<UUID, Predicate<PlayerRef>>} containing all player filters.
      */
-    ArrayList<Predicate<PlayerRef>> getPlayerFilters();
+    Map<UUID, Predicate<PlayerRef>> getPlayerFilters();
 
     /**
      * Adds a player filter that gets applied whenever a player joins this {@link GameSpace}.
      * Applied before any game activity specific filtering.
      * @param filter A predicate with a single {@link PlayerRef} argument that returns true if the player is allowed or false otherwise.
+     * @return A {@link UUID} that identifies this filter.
      */
-    void addPlayerFilter(Predicate<PlayerRef> filter);
-
+    UUID addPlayerFilter(Predicate<PlayerRef> filter);
+    /**
+     * Remove a player filter from the list of filters.
+     * @param filterIdentity The {@link UUID} that identifies this filter.
+     */
+    void removePlayerFilter(UUID filterIdentity);
     /**
      * Tests if the player is allowed to join based on the applied player filters
      * @param player The {@link PlayerRef} to test for
