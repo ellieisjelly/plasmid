@@ -68,7 +68,7 @@ public class TemplateChunkGenerator extends GameChunkGenerator {
                     continue;
                 }
 
-                var section = protoChunk.getSection(sectionY);
+                var section = protoChunk.getSection(protoChunk.getSectionIndexFromSectionY(sectionY));
                 section.acquire();
 
                 try {
