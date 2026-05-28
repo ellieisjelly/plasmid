@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
@@ -103,9 +104,16 @@ public class TemplateChunkGenerator extends GameChunkGenerator {
                     oceanFloor.update(x, worldY, z, state);
                     worldSurface.update(x, worldY, z, state);
 
-                    var blockEntityTag = this.template.getBlockEntityNbt(templatePos);
-                    if (blockEntityTag != null) {
-                        chunk.setBlockEntityNbt(blockEntityTag);
+                    if (state.getBlock() instanceof EntityBlock entityBlock) {
+                        var blockEntityTag = this.template.getBlockEntityNbt(templatePos);
+                        if (blockEntityTag != null) {
+                            chunk.setBlockEntityNbt(blockEntityTag);
+                        } else {
+                            var be = entityBlock.newBlockEntity(new BlockPos(templatePos), state);
+                            if (be != null) {
+                                chunk.setBlockEntity(be);
+                            }
+                        }
                     }
                 }
             }
