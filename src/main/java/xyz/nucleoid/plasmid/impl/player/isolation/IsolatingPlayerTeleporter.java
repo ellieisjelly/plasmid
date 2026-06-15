@@ -84,7 +84,7 @@ public final class IsolatingPlayerTeleporter {
             playerManagerAccess.plasmid$savePlayerData(player);
         }
 
-        player.getAdvancements().stopListening();
+        player.getAdvancements().clearTriggers();
         this.server.getCustomBossEvents().onPlayerDisconnect(player);
 
         player.level().removePlayerImmediately(player, Entity.RemovalReason.CHANGED_DIMENSION);

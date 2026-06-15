@@ -29,7 +29,7 @@ public class ReadyGameWaitingLobbyUiElement implements WaitingLobbyUiElement {
 
             return new GuiElementBuilder(Items.AIR).build();
         }
-        return new GuiElementBuilder(!this.hasVoted ? Items.GREEN_WOOL : Items.RED_WOOL )
+        return new GuiElementBuilder(!this.hasVoted ? Items.WOOL.green() : Items.WOOL.red() )
                 .setItemName(Component.translatable("text.plasmid.game.waiting_lobby.player_vote_item"))
                 .setCallback((index, type, action, gui) -> {
                     if (WaitingLobbyUiElement.isClick(type, gui)) {

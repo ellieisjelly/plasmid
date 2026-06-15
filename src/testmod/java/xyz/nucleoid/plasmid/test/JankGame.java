@@ -74,6 +74,8 @@ public final class JankGame {
                             })
             );
 
+            CAMERA.setId(world.getNextEntityId());
+
             GameWaitingLobby.addTo(activity, new WaitingLobbyConfig(1, 99));
 
             activity.allow(GameRuleType.PVP).allow(GameRuleType.MODIFY_ARMOR);

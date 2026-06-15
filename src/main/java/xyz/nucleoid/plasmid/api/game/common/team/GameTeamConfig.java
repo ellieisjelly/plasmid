@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.scores.TeamColor;
 import xyz.nucleoid.codecs.MoreCodecs;
 import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.api.util.PlasmidCodecs;
@@ -54,7 +55,7 @@ public final record GameTeamConfig(
     public static final GameTeamConfig DEFAULT = GameTeamConfig.builder().build();
 
     public GameTeamConfig(Component name, Colors colors, boolean friendlyFire, Team.CollisionRule collision, Team.Visibility nameTagVisibility, Component prefix, Component suffix) {
-        this.name = name.copy().withStyle(style -> style.getColor() == null ? style.withColor(colors.chatFormatting()) : style);
+        this.name = name.copy().withStyle(style -> style.getColor() == null && colors.teamColor.isPresent() ? style.withColor(colors.teamColor.get().textColor()) : style);
         this.colors = colors;
         this.friendlyFire = friendlyFire;
         this.collision = collision;
@@ -82,8 +83,13 @@ public final record GameTeamConfig(
                 .build();
     }
 
+    @Deprecated
     public ChatFormatting chatFormatting() {
         return this.colors.chatFormatting();
+    }
+
+    public Optional<TeamColor> teamColor() {
+        return this.colors.teamColor();
     }
 
     public TextColor fireworkColor() {
@@ -100,7 +106,7 @@ public final record GameTeamConfig(
 
     public void applyToScoreboard(PlayerTeam scoreboardTeam) {
         scoreboardTeam.setDisplayName(this.name());
-        scoreboardTeam.setColor(this.chatFormatting());
+        scoreboardTeam.setColor(this.teamColor());
         scoreboardTeam.setAllowFriendlyFire(this.friendlyFire());
         scoreboardTeam.setCollisionRule(this.collision());
         scoreboardTeam.setNameTagVisibility(this.nameTagVisibility());
@@ -189,14 +195,14 @@ public final record GameTeamConfig(
     }
 
     public final record Colors(
-            ChatFormatting chatFormatting,
+            Optional<TeamColor> teamColor,
             TextColor dyeColor,
             DyeColor blockDyeColor,
             TextColor fireworkColor
     ) {
         private static final Codec<Colors> RECORD_CODEC = RecordCodecBuilder.create(instance -> {
             return instance.group(
-                    ChatFormatting.CODEC.optionalFieldOf("chat", ChatFormatting.RESET).forGetter(Colors::chatFormatting),
+                    TeamColor.CODEC.optionalFieldOf("chat").forGetter(Colors::teamColor),
                     TextColor.CODEC.fieldOf("dye").forGetter(Colors::dyeColor),
                     DyeColor.CODEC.fieldOf("block_dye").forGetter(Colors::blockDyeColor),
                     TextColor.CODEC.fieldOf("firework").forGetter(Colors::fireworkColor)
@@ -209,39 +215,90 @@ public final record GameTeamConfig(
         );
 
         public static final Colors NONE = new Colors(
-                ChatFormatting.RESET,
+                Optional.empty(),
                 TextColor.fromLegacyFormat(ChatFormatting.WHITE),
                 DyeColor.WHITE,
                 TextColor.fromLegacyFormat(ChatFormatting.WHITE)
         );
 
+        @Deprecated
+        public Colors(
+                ChatFormatting chatFormatting,
+                TextColor dyeColor,
+                DyeColor blockDyeColor,
+                TextColor fireworkColor
+        ) {
+            this(Optional.ofNullable(switch (chatFormatting) {
+                case WHITE -> TeamColor.WHITE;
+                case GOLD -> TeamColor.GOLD;
+                case LIGHT_PURPLE -> TeamColor.LIGHT_PURPLE;
+                case AQUA -> TeamColor.AQUA;
+                case YELLOW -> TeamColor.YELLOW;
+                case GREEN -> TeamColor.GREEN;
+                case DARK_GRAY -> TeamColor.DARK_GRAY;
+                case GRAY -> TeamColor.GRAY;
+                case DARK_AQUA -> TeamColor.DARK_AQUA;
+                case DARK_PURPLE -> TeamColor.DARK_PURPLE;
+                case BLUE -> TeamColor.BLUE;
+                case DARK_RED -> TeamColor.DARK_RED;
+                case DARK_BLUE -> TeamColor.DARK_BLUE;
+                case DARK_GREEN -> TeamColor.DARK_GREEN;
+                case RED -> TeamColor.RED;
+                case BLACK -> TeamColor.BLACK;
+                default -> null;
+            }), dyeColor, blockDyeColor, fireworkColor);
+        }
+
         public static Colors from(DyeColor dyeColor) {
             var formatting = formatByDye(dyeColor);
             return new Colors(
-                    formatting,
+                    Optional.of(formatting),
                     TextColor.fromRgb(dyeColor.getTextureDiffuseColor()),
                     dyeColor,
                     TextColor.fromRgb(dyeColor.getFireworkColor())
             );
         }
 
-        private static ChatFormatting formatByDye(DyeColor dye) {
-            return switch (dye) {
+        @Deprecated
+        public ChatFormatting chatFormatting() {
+            return switch (this.teamColor.orElse(null)) {
                 case WHITE -> ChatFormatting.WHITE;
-                case ORANGE -> ChatFormatting.GOLD;
-                case MAGENTA, PINK -> ChatFormatting.LIGHT_PURPLE;
-                case LIGHT_BLUE -> ChatFormatting.AQUA;
+                case GOLD -> ChatFormatting.GOLD;
+                case LIGHT_PURPLE -> ChatFormatting.LIGHT_PURPLE;
+                case AQUA -> ChatFormatting.AQUA;
                 case YELLOW -> ChatFormatting.YELLOW;
-                case LIME -> ChatFormatting.GREEN;
-                case GRAY -> ChatFormatting.DARK_GRAY;
-                case LIGHT_GRAY -> ChatFormatting.GRAY;
-                case CYAN -> ChatFormatting.DARK_AQUA;
-                case PURPLE -> ChatFormatting.DARK_PURPLE;
+                case GREEN -> ChatFormatting.GREEN;
+                case DARK_GRAY -> ChatFormatting.DARK_GRAY;
+                case GRAY -> ChatFormatting.GRAY;
+                case DARK_AQUA -> ChatFormatting.DARK_AQUA;
+                case DARK_PURPLE -> ChatFormatting.DARK_PURPLE;
                 case BLUE -> ChatFormatting.BLUE;
-                case BROWN -> ChatFormatting.DARK_RED;
-                case GREEN -> ChatFormatting.DARK_GREEN;
+                case DARK_RED -> ChatFormatting.DARK_RED;
+                case DARK_BLUE -> ChatFormatting.DARK_BLUE;
+                case DARK_GREEN -> ChatFormatting.DARK_GREEN;
                 case RED -> ChatFormatting.RED;
                 case BLACK -> ChatFormatting.BLACK;
+                case null -> ChatFormatting.RESET;
+            };
+        }
+
+        private static TeamColor formatByDye(DyeColor dye) {
+            return switch (dye) {
+                case WHITE -> TeamColor.WHITE;
+                case ORANGE -> TeamColor.GOLD;
+                case MAGENTA, PINK -> TeamColor.LIGHT_PURPLE;
+                case LIGHT_BLUE -> TeamColor.AQUA;
+                case YELLOW -> TeamColor.YELLOW;
+                case LIME -> TeamColor.GREEN;
+                case GRAY -> TeamColor.DARK_GRAY;
+                case LIGHT_GRAY -> TeamColor.GRAY;
+                case CYAN -> TeamColor.DARK_AQUA;
+                case PURPLE -> TeamColor.DARK_PURPLE;
+                case BLUE -> TeamColor.BLUE;
+                case BROWN -> TeamColor.DARK_RED;
+                case GREEN -> TeamColor.DARK_GREEN;
+                case RED -> TeamColor.RED;
+                case BLACK -> TeamColor.BLACK;
             };
         }
     }

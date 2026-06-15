@@ -24,7 +24,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Items;
 
 public class GameJoinUi extends SimpleGui {
-    private static final GuiElement EMPTY = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).hideTooltip().build();
+    private static final GuiElement EMPTY = new GuiElementBuilder(Items.STAINED_GLASS_PANE.gray()).hideTooltip().build();
 
     private static final int NAVBAR_POS = 81;
     private final ServerPlayer player;
@@ -96,7 +96,7 @@ public class GameJoinUi extends SimpleGui {
             this.setSlot(NAVBAR_POS, EMPTY);
             this.setSlot(NAVBAR_POS + 1, EMPTY);
 
-            this.setSlot(NAVBAR_POS + 2, new GuiElementBuilder(hasPrevious ? Items.LIME_STAINED_GLASS_PANE : Items.BLACK_STAINED_GLASS_PANE)
+            this.setSlot(NAVBAR_POS + 2, new GuiElementBuilder(hasPrevious ? Items.STAINED_GLASS_PANE.lime() : Items.STAINED_GLASS_PANE.black())
                     .setName(Component.translatable("spectatorMenu.previous_page").withStyle(hasPrevious ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY))
                     .setCallback(() -> this.changePage(-1))
             );
@@ -107,7 +107,7 @@ public class GameJoinUi extends SimpleGui {
             this.setSlot(NAVBAR_POS + 4, Guis.getNumericBanner(registries, pageValue / 10));
             this.setSlot(NAVBAR_POS + 5, Guis.getNumericBanner(registries, pageValue));
 
-            this.setSlot(NAVBAR_POS + 6, new GuiElementBuilder(hasNext ? Items.LIME_STAINED_GLASS_PANE : Items.BLACK_STAINED_GLASS_PANE)
+            this.setSlot(NAVBAR_POS + 6, new GuiElementBuilder(hasNext ? Items.STAINED_GLASS_PANE.lime() : Items.STAINED_GLASS_PANE.black())
                     .setName(Component.translatable("spectatorMenu.next_page").withStyle(hasNext ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY))
                     .setCallback(() -> this.changePage(1))
             );

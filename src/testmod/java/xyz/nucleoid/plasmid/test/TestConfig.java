@@ -18,7 +18,7 @@ public record TestConfig(int integer, WaitingLobbyConfig players, BlockState sta
     public static final MapCodec<TestConfig> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.INT.optionalFieldOf("integer", 0).forGetter(TestConfig::integer),
             WaitingLobbyConfig.CODEC.optionalFieldOf("players", new WaitingLobbyConfig(1, 99)).forGetter(TestConfig::players),
-            BlockState.CODEC.optionalFieldOf("state", Blocks.BLUE_STAINED_GLASS.defaultBlockState()).forGetter(TestConfig::state),
+            BlockState.CODEC.optionalFieldOf("state", Blocks.STAINED_GLASS.blue().defaultBlockState()).forGetter(TestConfig::state),
             RegistryCodecs.homogeneousList(Registries.ITEM).optionalFieldOf("items").forGetter(TestConfig::items),
             TeamListProvider.CODEC.optionalFieldOf("teams").forGetter(TestConfig::teams)
     ).apply(i, TestConfig::new));

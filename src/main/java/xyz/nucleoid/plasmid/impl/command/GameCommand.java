@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.logging.LogUtils;
-import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.permission.v1.PermissionPredicates;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.CompoundTagArgument;
@@ -17,6 +17,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.PermissionLevel;
 import org.slf4j.Logger;
 import xyz.nucleoid.plasmid.api.registry.PlasmidRegistryKeys;
 import xyz.nucleoid.plasmid.impl.Plasmid;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
+import static xyz.nucleoid.plasmid.impl.Plasmid.id;
 
 public final class GameCommand {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -63,7 +65,7 @@ public final class GameCommand {
         dispatcher.register(
             literal("game")
                 .then(literal("open")
-                    .requires(Permissions.require("plasmid.command.game.open", 2))
+                    .requires(PermissionPredicates.require(id("command/game/open"), PermissionLevel.GAMEMASTERS))
                     .then(GameConfigArgument.argument("game_config")
                         .executes(GameCommand::openGame)
                     )
@@ -72,25 +74,25 @@ public final class GameCommand {
                     )
                 )
                 .then(literal("propose")
-                    .requires(Permissions.require("plasmid.command.game.propose", 2))
+                    .requires(PermissionPredicates.require(id("command/game/propose"), PermissionLevel.GAMEMASTERS))
                     .then(GameSpaceArgument.argument("game_space")
                         .executes(GameCommand::proposeGame)
                     )
                         .executes(GameCommand::proposeCurrentGame)
                 )
                 .then(literal("start")
-                    .requires(Permissions.require("plasmid.command.game.start", 2))
+                    .requires(PermissionPredicates.require(id("command/game/start"), PermissionLevel.GAMEMASTERS))
                     .executes(GameCommand::startGame)
                 )
                 .then(literal("stop")
-                    .requires(Permissions.require("plasmid.command.game.stop", 2))
+                    .requires(PermissionPredicates.require(id("command/game/stop"), PermissionLevel.GAMEMASTERS))
                     .executes(GameCommand::stopGame)
                         .then(literal("confirm")
                             .executes(GameCommand::stopGameConfirmed)
                         )
                 )
                 .then(literal("kick")
-                    .requires(Permissions.require("plasmid.command.game.kick", 2))
+                    .requires(PermissionPredicates.require(id("command/game/kick"), PermissionLevel.GAMEMASTERS))
                     .then(argument("targets", EntityArgument.players())
                         .executes(GameCommand::kickPlayers)
                     )
@@ -108,7 +110,7 @@ public final class GameCommand {
                      )
                 )
                 .then(literal("joinall")
-                    .requires(Permissions.require("plasmid.command.game.joinall", 2))
+                    .requires(PermissionPredicates.require(id("command/game.joinall"), PermissionLevel.GAMEMASTERS))
                     .executes(GameCommand::joinAllGame)
                     .then(GameSpaceArgument.argument("game_space")
                         .executes(GameCommand::joinAllQualifiedGame)

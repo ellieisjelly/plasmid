@@ -172,7 +172,7 @@ public final class Guis {
     }
 
     private static ItemStack createBanner(BannerPatternLayers.Builder patterns) {
-        ItemStack stack = Items.GRAY_BANNER.getDefaultInstance();
+        ItemStack stack = Items.BANNER.gray().getDefaultInstance();
         stack.set(DataComponents.CUSTOM_NAME, CommonComponents.EMPTY);
         stack.update(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT, tooltipDisplay -> tooltipDisplay.withHidden(DataComponents.BANNER_PATTERNS, true));
         stack.set(DataComponents.BANNER_PATTERNS, patterns.build());

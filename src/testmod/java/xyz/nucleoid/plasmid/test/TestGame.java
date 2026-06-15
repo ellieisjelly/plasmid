@@ -13,6 +13,7 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -79,8 +80,10 @@ public final class TestGame {
 
             var template = TestGame.generateMapTemplate(context.game().config().state(), teamList);
 
-            new TeamColorMapTemplateProcessor(List.of(DyeColor.values()))
-                    .processTemplate(template, new ContextMap.Builder().withOptionalParameter(MapLoadContexts.TEAM_LIST, teamList));
+            if (teamList != null) {
+                new TeamColorMapTemplateProcessor(List.of(DyeColor.values()))
+                        .processTemplate(template, new ContextMap.Builder().withOptionalParameter(MapLoadContexts.TEAM_LIST, teamList));
+            }
 
             var worldConfig = new RuntimeLevelConfig()
                     .setGenerator(new TemplateChunkGenerator(context.server(), template))
@@ -208,7 +211,7 @@ public final class TestGame {
         template.setBlockState(edge, BUTTON);
 
         var armorStandNbt = new CompoundTag();
-        armorStandNbt.putString("id", EntityType.getKey(EntityType.ARMOR_STAND).toString());
+        armorStandNbt.putString("id", EntityType.getKey(EntityTypes.ARMOR_STAND).toString());
         armorStandNbt.putBoolean("NoGravity", true);
 
         var armorStandPos = Vec3.atBottomCenterOf(edge.relative(Direction.WEST));
@@ -245,7 +248,7 @@ public final class TestGame {
 
                 if (teamList.list().size() > i) {
                     var displayNbt = new CompoundTag();
-                    displayNbt.putString("id", EntityType.getKey(EntityType.TEXT_DISPLAY).toString());
+                    displayNbt.putString("id", EntityType.getKey(EntityTypes.TEXT_DISPLAY).toString());
                     displayNbt.store("text", ComponentSerialization.CODEC, teamList.list().get(i++).config().name());
                     displayNbt.store("billboard", Display.BillboardConstraints.CODEC, Display.BillboardConstraints.VERTICAL);
                     var displayPos = Vec3.atBottomCenterOf(mut.setX(x--));

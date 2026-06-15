@@ -19,7 +19,7 @@ public class LeaveGameWaitingLobbyUiElement implements WaitingLobbyUiElement {
 
     @Override
     public GuiElement createMainElement() {
-        return new GuiElementBuilder(Items.RED_BED)
+        return new GuiElementBuilder(Items.BED.red())
                 .setItemName(Component.translatable("text.plasmid.game.waiting_lobby.leave_game"))
                 .setCallback((index, type, action, gui) -> {
                     if (WaitingLobbyUiElement.isClick(type, gui)) {

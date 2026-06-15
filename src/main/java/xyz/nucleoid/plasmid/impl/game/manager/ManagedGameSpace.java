@@ -2,7 +2,6 @@ package xyz.nucleoid.plasmid.impl.game.manager;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -24,6 +23,8 @@ import xyz.nucleoid.plasmid.api.event.GameEvents;
 
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static xyz.nucleoid.plasmid.impl.Plasmid.id;
 
 public final class ManagedGameSpace implements GameSpace {
     private final MinecraftServer server;
@@ -205,7 +206,7 @@ public final class ManagedGameSpace implements GameSpace {
             return offer.reject(GameComponents.Join.gameClosed());
         } else if (offer.serverPlayers().stream().anyMatch(this.manager::inGame)) {
             return offer.reject(GameComponents.Join.inOtherGame());
-        } else if (offer.serverPlayers().stream().anyMatch(p -> !Permissions.check(p, "plasmid.join_game", true))) {
+        } else if (offer.serverPlayers().stream().anyMatch(p -> !p.checkPermission(id("join_game"), true))) {
             return offer.reject(GameComponents.Join.notAllowed());
         }
 

@@ -5,17 +5,19 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.permission.v1.PermissionPredicates;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.PermissionLevel;
 import xyz.nucleoid.plasmid.impl.command.argument.GamePortalArgument;
 import xyz.nucleoid.plasmid.impl.portal.GamePortalInterface;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
+import static xyz.nucleoid.plasmid.impl.Plasmid.id;
 
 public final class GamePortalCommand {
     public static final SimpleCommandExceptionType TARGET_IS_NOT_INTERFACE = new SimpleCommandExceptionType(
@@ -32,13 +34,13 @@ public final class GamePortalCommand {
             literal("game")
                 .then(literal("portal")
                     .then(literal("connect")
-                        .requires(Permissions.require("plasmid.command.game.portal.connect", 3))
+                        .requires(PermissionPredicates.require(id("command/game/portal/connect"), PermissionLevel.ADMINS))
                         .then(GamePortalArgument.argument("portal")
                         .then(argument("entity", EntityArgument.entity()).executes(GamePortalCommand::connectEntity))
                         .then(argument("pos", BlockPosArgument.blockPos()).executes(GamePortalCommand::connectBlock))
                     ))
                     .then(literal("disconnect")
-                        .requires(Permissions.require("plasmid.command.game.portal.disconnect", 3))
+                        .requires(PermissionPredicates.require(id("command/game/portal/disconnect"), PermissionLevel.ADMINS))
                         .then(argument("entity", EntityArgument.entity()).executes(GamePortalCommand::disconnectEntity))
                         .then(argument("pos", BlockPosArgument.blockPos()).executes(GamePortalCommand::disconnectBlock))
                     )
