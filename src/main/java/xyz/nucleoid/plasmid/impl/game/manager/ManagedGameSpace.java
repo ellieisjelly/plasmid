@@ -150,7 +150,6 @@ public final class ManagedGameSpace implements GameSpace {
         return this.players;
     }
 
-    @Override
     public List<Predicate<PlayerRef>> getPlayerFilters() {
         return Collections.unmodifiableList(this.playerFilters);
     }

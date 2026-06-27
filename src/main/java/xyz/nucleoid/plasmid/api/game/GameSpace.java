@@ -86,23 +86,19 @@ public interface GameSpace extends GameAttachmentHolder {
     GameSpacePlayers getPlayers();
 
     /**
-     * Gets all player filters in this {@link GameSpace}.
-     * @return A {@link List<Predicate<PlayerRef>>} containing all player filters.
-     */
-    List<Predicate<PlayerRef>> getPlayerFilters();
-
-    /**
      * Adds a player filter that gets applied whenever a player joins this {@link GameSpace}.
      * Applied before any game activity specific filtering.
      * @param filter A predicate with a single {@link PlayerRef} argument that returns true if the player is allowed or false otherwise.
      * @return The player filter that was added.
      */
     Predicate<PlayerRef> addPlayerFilter(Predicate<PlayerRef> filter);
+
     /**
      * Remove a player filter from the list of filters.
      * @param filter The player filter.
      */
     void removePlayerFilter(Predicate<PlayerRef> filter);
+    
     /**
      * Tests if the player is allowed to join based on the applied player filters
      * @param player The {@link PlayerRef} to test for
