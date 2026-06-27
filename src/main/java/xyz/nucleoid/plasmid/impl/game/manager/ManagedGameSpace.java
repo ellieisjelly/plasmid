@@ -25,9 +25,8 @@ import xyz.nucleoid.plasmid.impl.player.LocalJoinOffer;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.plasmid.api.event.GameEvents;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -40,7 +39,7 @@ public final class ManagedGameSpace implements GameSpace {
     private final ManagedGameSpacePlayers players;
     private final ManagedGameSpaceLevels worlds;
 
-    private final LinkedHashMap<UUID, Predicate<PlayerRef>> playerFilters = new LinkedHashMap<>();
+    private final ArrayList<Predicate<PlayerRef>> playerFilters = new ArrayList<>();
     private final GameLifecycle lifecycle = new GameLifecycle();
 
     private final long openTime;
@@ -152,25 +151,24 @@ public final class ManagedGameSpace implements GameSpace {
     }
 
     @Override
-    public LinkedHashMap<UUID, Predicate<PlayerRef>> getPlayerFilters() {
+    public ArrayList<Predicate<PlayerRef>> getPlayerFilters() {
         return this.playerFilters;
     }
 
     @Override
-    public UUID addPlayerFilter(Predicate<PlayerRef> filter) {
-        UUID uuid = UUID.randomUUID();
-        this.playerFilters.put(uuid, filter);
-        return uuid;
+    public Predicate<PlayerRef> addPlayerFilter(Predicate<PlayerRef> filter) {
+        this.playerFilters.add(filter);
+        return filter;
     }
 
     @Override
-    public void removePlayerFilter(UUID uuid) {
-        this.playerFilters.remove(uuid);
+    public void removePlayerFilter(Predicate<PlayerRef> filter) {
+        this.playerFilters.remove(filter);
     }
 
     @Override
     public boolean isPlayerAllowed(PlayerRef player) {
-        for (Predicate<PlayerRef> playerFilter : this.playerFilters.values()) {
+        for (Predicate<PlayerRef> playerFilter : this.playerFilters) {
             if (!playerFilter.test(player)) {
                 return false;
             }
