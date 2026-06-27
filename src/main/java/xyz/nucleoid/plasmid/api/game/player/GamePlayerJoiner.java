@@ -1,8 +1,11 @@
 package xyz.nucleoid.plasmid.api.game.player;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import xyz.nucleoid.plasmid.api.event.GameEvents;
 import xyz.nucleoid.plasmid.api.game.*;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 
 import java.util.Collection;
@@ -34,6 +37,17 @@ public final class GamePlayerJoiner {
     }
 
     private static GameResult tryJoinAll(Collection<ServerPlayer> players, GameSpace gameSpace, JoinIntent intent) {
+        boolean playersAreAllowed = true;
+        for (ServerPlayer player : players) {
+            if (!gameSpace.isPlayerAllowed(PlayerRef.of(player))) {
+                playersAreAllowed = false;
+                break;
+            }
+        }
+
+        if (!playersAreAllowed) {
+            return GameResult.error(Component.translatable("text.plasmid.game.join.party.error.not_allowed"));
+        }
         return gameSpace.getPlayers().offer(players, intent);
     }
 

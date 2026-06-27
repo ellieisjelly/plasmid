@@ -5,6 +5,7 @@ import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.config.GameConfig;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.game.manager.GameSpaceManagerImpl;
 import xyz.nucleoid.plasmid.impl.game.manager.ManagedGameSpace;
 import xyz.nucleoid.plasmid.api.game.player.GamePlayerJoiner;
@@ -60,10 +61,12 @@ public class GameJoinUi extends SimpleGui {
     }
 
     private void updateUi() {
+        PlayerRef playerRef = PlayerRef.of(this.player);
         int i = 0;
         int gameI = 0;
 
         var games = new ArrayList<>(GameSpaceManagerImpl.get().getOpenGameSpaces());
+        games.removeIf((gameSpace -> !gameSpace.isPlayerAllowed(playerRef)));
         games.sort(Comparator.comparingInt(space -> -space.getPlayers().size()));
 
         int limit = this.size;

@@ -8,8 +8,13 @@ import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.api.game.level.GameSpaceLevels;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Represents an instance of a game, and the "space" within which it occurs.
@@ -79,6 +84,31 @@ public interface GameSpace extends GameAttachmentHolder {
      * @return a {@link PlayerSet} that contains all {@link ServerPlayer}s in this {@link GameSpace}
      */
     GameSpacePlayers getPlayers();
+
+    /**
+     * Gets all player filters in this {@link GameSpace}.
+     * @return A {@link List<Predicate<PlayerRef>>} containing all player filters.
+     */
+    List<Predicate<PlayerRef>> getPlayerFilters();
+
+    /**
+     * Adds a player filter that gets applied whenever a player joins this {@link GameSpace}.
+     * Applied before any game activity specific filtering.
+     * @param filter A predicate with a single {@link PlayerRef} argument that returns true if the player is allowed or false otherwise.
+     * @return The player filter that was added.
+     */
+    Predicate<PlayerRef> addPlayerFilter(Predicate<PlayerRef> filter);
+    /**
+     * Remove a player filter from the list of filters.
+     * @param filter The player filter.
+     */
+    void removePlayerFilter(Predicate<PlayerRef> filter);
+    /**
+     * Tests if the player is allowed to join based on the applied player filters
+     * @param player The {@link PlayerRef} to test for
+     * @return true if the player is allowed, false otherwise.
+     */
+    boolean isPlayerAllowed(PlayerRef player);
 
     /**
      * Returns the manager for all attached {@link ServerLevel} instances to this {@link GameSpace}.

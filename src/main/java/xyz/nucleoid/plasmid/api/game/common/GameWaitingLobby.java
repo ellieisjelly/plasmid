@@ -17,6 +17,7 @@ import xyz.nucleoid.plasmid.api.game.player.JoinOfferResult;
 import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.api.game.common.widget.SidebarWidget;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.game.common.ui.WaitingLobbyUi;
 import xyz.nucleoid.plasmid.impl.game.common.ui.element.LeaveGameWaitingLobbyUiElement;
 import xyz.nucleoid.plasmid.impl.game.common.ui.element.ReadyGameWaitingLobbyUiElement;
@@ -336,7 +337,6 @@ public final class GameWaitingLobby {
         if (this.startRequested) {
             return START_REQUESTED_COUNTDOWN;
         }
-
         if (this.gameSpace.getPlayers().participants().size() >= this.playerConfig.minPlayers()) {
             double playersNeededToStart = Math.ceil((double) this.gameSpace.getPlayers().participants().size() / 2);
             if (playersNeededToStart <= this.playerVotes.size()) {

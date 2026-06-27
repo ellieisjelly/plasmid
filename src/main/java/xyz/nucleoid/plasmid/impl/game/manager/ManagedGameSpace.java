@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.fantasy.RuntimeLevelHandle;
@@ -16,13 +17,16 @@ import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
 import xyz.nucleoid.plasmid.api.game.player.JoinOfferResult;
+import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.plasmid.impl.player.LocalJoinAcceptor;
 import xyz.nucleoid.plasmid.impl.player.LocalJoinOffer;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.plasmid.api.event.GameEvents;
 
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static xyz.nucleoid.plasmid.impl.Plasmid.id;
 
@@ -35,6 +39,7 @@ public final class ManagedGameSpace implements GameSpace {
     private final ManagedGameSpacePlayers players;
     private final ManagedGameSpaceLevels worlds;
 
+    private final ArrayList<Predicate<PlayerRef>> playerFilters = new ArrayList<>();
     private final GameLifecycle lifecycle = new GameLifecycle();
 
     private final long openTime;
@@ -143,6 +148,32 @@ public final class ManagedGameSpace implements GameSpace {
     @Override
     public ManagedGameSpacePlayers getPlayers() {
         return this.players;
+    }
+
+    @Override
+    public List<Predicate<PlayerRef>> getPlayerFilters() {
+        return Collections.unmodifiableList(this.playerFilters);
+    }
+
+    @Override
+    public Predicate<PlayerRef> addPlayerFilter(Predicate<PlayerRef> filter) {
+        this.playerFilters.add(filter);
+        return filter;
+    }
+
+    @Override
+    public void removePlayerFilter(Predicate<PlayerRef> filter) {
+        this.playerFilters.remove(filter);
+    }
+
+    @Override
+    public boolean isPlayerAllowed(PlayerRef player) {
+        for (Predicate<PlayerRef> playerFilter : this.playerFilters) {
+            if (!playerFilter.test(player)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
