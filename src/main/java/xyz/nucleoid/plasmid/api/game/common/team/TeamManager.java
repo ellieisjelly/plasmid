@@ -339,7 +339,7 @@ public final class TeamManager implements Iterable<GameTeam> {
             var playerTeam = this.teamFor(player);
             var attackerTeam = this.teamFor(attacker);
 
-            if (playerTeam != null && playerTeam == attackerTeam && !this.getTeamConfig(playerTeam).friendlyFire()) {
+            if (playerTeam != null && playerTeam == attackerTeam && !player.equals(attacker) && !this.getTeamConfig(playerTeam).friendlyFire()) {
                 return EventResult.DENY;
             }
         }
