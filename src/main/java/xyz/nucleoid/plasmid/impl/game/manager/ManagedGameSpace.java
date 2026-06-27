@@ -25,8 +25,7 @@ import xyz.nucleoid.plasmid.impl.player.LocalJoinOffer;
 import xyz.nucleoid.plasmid.impl.Plasmid;
 import xyz.nucleoid.plasmid.api.event.GameEvents;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -151,8 +150,8 @@ public final class ManagedGameSpace implements GameSpace {
     }
 
     @Override
-    public ArrayList<Predicate<PlayerRef>> getPlayerFilters() {
-        return this.playerFilters;
+    public List<Predicate<PlayerRef>> getPlayerFilters() {
+        return Collections.unmodifiableList(this.playerFilters);
     }
 
     @Override
